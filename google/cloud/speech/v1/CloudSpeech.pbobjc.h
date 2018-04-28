@@ -665,7 +665,7 @@ typedef GPB_ENUM(StreamingRecognitionResult_FieldNumber) {
  * A streaming speech recognition result corresponding to a portion of the audio
  * that is currently being processed.
  **/
-@interface StreamingRecognitionResult : GPBMessage
+@interface 	StreamingRecognitionResult : GPBMessage
 
 /**
  * *Output-only* May contain one or more recognition hypotheses (up to the

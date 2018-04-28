@@ -19,14 +19,6 @@ import googleapis
 
 let SAMPLE_RATE = 16000
 
-// extend strings to allow json conversion
-extension String {
-    func toJSON() -> Any? {
-        guard let data = self.data(using: .utf8, allowLossyConversion: false) else { return nil }
-        return try? JSONSerialization.jsonObject(with: data, options: .mutableContainers)
-    }
-}
-
 class ViewController : UIViewController, AudioControllerDelegate {
   @IBOutlet weak var textView: UITextView!
   @IBOutlet weak var micStart: UIButton!
@@ -84,14 +76,18 @@ class ViewController : UIViewController, AudioControllerDelegate {
             } else if let response = response {
                 var finished = false
                 
+                // if result or google api return is a streaming recognition result
                 for result in response.resultsArray! {
                     if let result = result as? StreamingRecognitionResult {
-                        print(result)   // print to view responses in console
+                        
+                        // print the running transcript
+                        if let resultFirstAlt = result.alternativesArray.firstObject as? SpeechRecognitionAlternative {
+                            strongSelf.textView.text = resultFirstAlt.transcript   // add transcript to textView
+                        }
+                        
+                        // check if final result
                         if result.isFinal {
                             finished = true
-                            if let resultFirstAlt = result.alternativesArray.firstObject as? SpeechRecognitionAlternative {
-                                strongSelf.textView.text = strongSelf.textView.text + resultFirstAlt.transcript   // add transcript to textView
-                            }
                         }
                     }
                     //strongSelf.textView.text = response.debugDescription
@@ -104,15 +100,5 @@ class ViewController : UIViewController, AudioControllerDelegate {
       })
       self.audioData = NSMutableData()
     }
-  }
-  func convertToDictionary(text: String) -> [String: Any]? {
-    if let data = text.data(using: .utf8) {
-      do {
-        return try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-      } catch {
-        print(error.localizedDescription)
-        }
-    }
-    return nil
   }
 }

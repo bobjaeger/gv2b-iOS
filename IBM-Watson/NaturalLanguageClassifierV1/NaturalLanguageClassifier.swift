@@ -39,7 +39,10 @@ public class NaturalLanguageClassifier {
      - parameter password: The password used to authenticate with the service.
      */
     public init(username: String, password: String) {
-        self.credentials = .basicAuthentication(username: username, password: password)
+        self.credentials = .basicAuthentication(
+            username: username,             // GAVL username credentials
+            password: password              // GAVL password credentials
+        )
     }
 
     /**

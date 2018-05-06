@@ -58,6 +58,7 @@ class SpeechRecognitionService {
       recognitionConfig.encoding =  .linear16
       recognitionConfig.sampleRateHertz = Int32(sampleRate)
       recognitionConfig.languageCode = "en-AU"
+      //recognitionConfig.languageCode = "en_NZ"
       recognitionConfig.maxAlternatives = 30
       recognitionConfig.enableWordTimeOffsets = true
         

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2C450CC6320CA9890051ABAF /* Pods_Speech.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C0B7F558BD8BC89862C8C277 /* Pods_Speech.framework */; };
+		3A0758D0209F095700506174 /* IBM-Watson in Resources */ = {isa = PBXBuildFile; fileRef = 3A0758CF209F095700506174 /* IBM-Watson */; };
 		D31E0EB81D778A56006A50AB /* SpeechRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31E0EB71D778A56006A50AB /* SpeechRecognitionService.swift */; };
 		D31E0EBA1D77AA2F006A50AB /* AudioController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31E0EB91D77AA2F006A50AB /* AudioController.swift */; };
 		D34C17D91C948F5800D69BCA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D34C17D81C948F5800D69BCA /* Assets.xcassets */; };
@@ -18,6 +19,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3A0758CF209F095700506174 /* IBM-Watson */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "IBM-Watson"; sourceTree = "<group>"; };
 		54C3D1E96C8C43AB14662311 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		5E83ACE29B0D0DF0085BA8F2 /* Pods-Speech.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Speech.release.xcconfig"; path = "Pods/Target Support Files/Pods-Speech/Pods-Speech.release.xcconfig"; sourceTree = "<group>"; };
 		6C682F8DD9C94E41979FE816 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
@@ -60,6 +62,7 @@
 		D34C17C01C948F5700D69BCA = {
 			isa = PBXGroup;
 			children = (
+				3A0758CF209F095700506174 /* IBM-Watson */,
 				D34C17CB1C948F5700D69BCA /* Speech */,
 				D34C17CA1C948F5700D69BCA /* Products */,
 				F657FA334EB8D9ABF1ACF569 /* Pods */,
@@ -174,6 +177,7 @@
 				D392D9861C94937D002F5132 /* Main.storyboard in Resources */,
 				D34C17DC1C948F5800D69BCA /* LaunchScreen.storyboard in Resources */,
 				D34C17D91C948F5800D69BCA /* Assets.xcassets in Resources */,
+				3A0758D0209F095700506174 /* IBM-Watson in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

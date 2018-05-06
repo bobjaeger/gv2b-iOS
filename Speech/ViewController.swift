@@ -25,12 +25,14 @@ class ViewController : UIViewController, AudioControllerDelegate {
   @IBOutlet weak var micStop: UIButton!
     
   var audioData: NSMutableData!
+    
+  var currentBid: Int!  // variable for the current standing bid
 
   override func viewDidLoad() {
     super.viewDidLoad()
     AudioController.sharedInstance.delegate = self
     
-    textView.text = String()    // george
+    textView.text = String()    // clear ui text screen
   }
 
   @IBAction func recordAudio(_ sender: NSObject) {
@@ -82,12 +84,14 @@ class ViewController : UIViewController, AudioControllerDelegate {
                         
                         // print the running transcript
                         if let resultFirstAlt = result.alternativesArray.firstObject as? SpeechRecognitionAlternative {
-                            strongSelf.textView.text = resultFirstAlt.transcript   // add transcript to textView
+                            strongSelf.textView.text = resultFirstAlt.transcript  // add transcript to textView
+                            print(result)
                         }
                         
                         // check if final result
                         if result.isFinal {
                             finished = true
+                            print("YES")
                         }
                     }
                     //strongSelf.textView.text = response.debugDescription

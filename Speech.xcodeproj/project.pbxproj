@@ -8,6 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		2C450CC6320CA9890051ABAF /* Pods_Speech.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C0B7F558BD8BC89862C8C277 /* Pods_Speech.framework */; };
+		3A15E5B620A0B4810037FF2F /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A15E5AD20A0A18E0037FF2F /* Starscream.framework */; };
+		3A15E5B720A0B4810037FF2F /* NaturalLanguageClassifierV1.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A15E5AE20A0A18E0037FF2F /* NaturalLanguageClassifierV1.framework */; };
+		3A15E5B820A0B4C80037FF2F /* NaturalLanguageClassifierV1.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A15E5AE20A0A18E0037FF2F /* NaturalLanguageClassifierV1.framework */; };
+		3A15E5B920A0B4C80037FF2F /* NaturalLanguageClassifierV1.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3A15E5AE20A0A18E0037FF2F /* NaturalLanguageClassifierV1.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3A15E5BA20A0B4C80037FF2F /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A15E5AD20A0A18E0037FF2F /* Starscream.framework */; };
+		3A15E5BB20A0B4C80037FF2F /* Starscream.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3A15E5AD20A0A18E0037FF2F /* Starscream.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D31E0EB81D778A56006A50AB /* SpeechRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31E0EB71D778A56006A50AB /* SpeechRecognitionService.swift */; };
 		D31E0EBA1D77AA2F006A50AB /* AudioController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31E0EB91D77AA2F006A50AB /* AudioController.swift */; };
 		D34C17D91C948F5800D69BCA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D34C17D81C948F5800D69BCA /* Assets.xcassets */; };
@@ -16,6 +22,21 @@
 		D3E34EA11D77541D00EF755D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3E34EA01D77541D00EF755D /* AppDelegate.swift */; };
 		D3E34EA51D7757CC00EF755D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3E34EA41D7757CC00EF755D /* ViewController.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		3A15E5BC20A0B4C80037FF2F /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				3A15E5B920A0B4C80037FF2F /* NaturalLanguageClassifierV1.framework in Embed Frameworks */,
+				3A15E5BB20A0B4C80037FF2F /* Starscream.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		3A15E5AD20A0A18E0037FF2F /* Starscream.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Starscream.framework; path = Carthage/Build/iOS/Starscream.framework; sourceTree = "<group>"; };
@@ -43,6 +64,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3A15E5B820A0B4C80037FF2F /* NaturalLanguageClassifierV1.framework in Frameworks */,
+				3A15E5B620A0B4810037FF2F /* Starscream.framework in Frameworks */,
+				3A15E5B720A0B4810037FF2F /* NaturalLanguageClassifierV1.framework in Frameworks */,
+				3A15E5BA20A0B4C80037FF2F /* Starscream.framework in Frameworks */,
 				2C450CC6320CA9890051ABAF /* Pods_Speech.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -127,6 +152,7 @@
 				D34C17C71C948F5700D69BCA /* Resources */,
 				A6C1304F9E6165DD748FC67B /* [CP] Embed Pods Frameworks */,
 				D8EE167099E5A7E524284D70 /* [CP] Copy Pods Resources */,
+				3A15E5BC20A0B4C80037FF2F /* Embed Frameworks */,
 			);
 			buildRules = (
 			);

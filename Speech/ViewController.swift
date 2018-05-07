@@ -20,6 +20,38 @@ import QuartzCore
 
 let SAMPLE_RATE = 16000
 
+// scroll functionality for UIScrollView EventList
+enum ScrollDirection {
+    case Top
+    case Right
+    case Bottom
+    case Left
+    
+    func contentOffsetWith(scrollView: UIScrollView) -> CGPoint {
+        var contentOffset = CGPoint.zero
+        switch self {
+        case .Top:
+            contentOffset = CGPoint(x: 0, y: -scrollView.contentInset.top)
+        case .Right:
+            contentOffset = CGPoint(x: scrollView.contentSize.width - scrollView.bounds.size.width, y: 0)
+        case .Bottom:
+            contentOffset = CGPoint(x: 0, y: scrollView.contentSize.height - scrollView.bounds.size.height)
+        case .Left:
+            contentOffset = CGPoint(x: -scrollView.contentInset.left, y: 0)
+        }
+        return contentOffset
+    }
+}
+extension UIScrollView {
+    func scrollTo(direction: ScrollDirection, animated: Bool = true) {
+        self.setContentOffset(direction.contentOffsetWith(scrollView: self), animated: animated)
+    }
+}
+/*
+ myScrollView.scrollTo(.Top/.Right/.Bottom/.Left)    // Animation is enabled by default
+ myScrollView.scrollTo(.Top/.Right/.Bottom/.Left, animated: false)  // Without animation
+ */
+
 class ViewController : UIViewController, AudioControllerDelegate {
   @IBOutlet weak var textView: UITextView!
   @IBOutlet weak var micStart: UIButton!
@@ -80,7 +112,7 @@ class ViewController : UIViewController, AudioControllerDelegate {
     // function to HIDE transcript area and text view with animation
     func hideTranscriptArea(duration: TimeInterval) {
         // animate the visibility of transcript text view to hide
-        UIView.animate(withDuration: duration, animations: {
+        UIView.animate(withDuration: duration*2, animations: {
             () -> Void in
             self.menuView.backgroundColor = self.speechOffColor // set menu color to off
             self.textView.alpha = 0 // fade out transcribe area
@@ -145,7 +177,7 @@ class ViewController : UIViewController, AudioControllerDelegate {
             //      animate the visibility of transcript text view
             (true) -> Void in
             self.textView.isHidden = false
-            UIView.animate(withDuration: duration, animations: { () -> Void in
+            UIView.animate(withDuration: duration*2, animations: { () -> Void in
                 self.menuView.backgroundColor = self.speechOnColor // set menu color to on
                 self.textView.alpha = 1
             })

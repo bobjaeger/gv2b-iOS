@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Speech/ViewController.swift"
-            timestampString = "547409875.153304"
+            timestampString = "547410125.467407"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "125"
-            endingLineNumber = "125"
+            startingLineNumber = "118"
+            endingLineNumber = "118"
             landmarkName = "showTranscriptArea(duration:)"
             landmarkType = "7">
          </BreakpointContent>

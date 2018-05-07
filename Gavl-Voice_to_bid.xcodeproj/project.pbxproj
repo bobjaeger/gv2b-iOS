@@ -170,7 +170,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0820;
-				ORGANIZATIONNAME = Google;
+				ORGANIZATIONNAME = Deakin;
 				TargetAttributes = {
 					D34C17C81C948F5700D69BCA = {
 						CreatedOnToolsVersion = 7.2;
@@ -178,7 +178,7 @@
 					};
 				};
 			};
-			buildConfigurationList = D34C17C41C948F5700D69BCA /* Build configuration list for PBXProject "Speech" */;
+			buildConfigurationList = D34C17C41C948F5700D69BCA /* Build configuration list for PBXProject "Gavl-Voice_to_bid" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -408,7 +408,7 @@
 				);
 				INFOPLIST_FILE = Speech/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.google.speech-grpc-streaming";
+				PRODUCT_BUNDLE_IDENTIFIER = com.deakin.gavl.voicetobid;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Speech/Speech-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -428,7 +428,7 @@
 				);
 				INFOPLIST_FILE = Speech/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.google.speech-grpc-streaming";
+				PRODUCT_BUNDLE_IDENTIFIER = com.deakin.gavl.voicetobid;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Speech/Speech-Bridging-Header.h";
 				SWIFT_VERSION = 3.0;
@@ -438,7 +438,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		D34C17C41C948F5700D69BCA /* Build configuration list for PBXProject "Speech" */ = {
+		D34C17C41C948F5700D69BCA /* Build configuration list for PBXProject "Gavl-Voice_to_bid" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D34C17DE1C948F5800D69BCA /* Debug */,

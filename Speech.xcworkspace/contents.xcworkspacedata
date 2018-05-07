@@ -2,7 +2,7 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:Speech.xcodeproj">
+      location = "group:/Users/gkolecs/Documents/Coding/ios/sit302/ios-docs-samples-master/speech/Swift/Speech-gRPC-Streaming/Gavl-Voice_to_bid.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Pods/Pods.xcodeproj">

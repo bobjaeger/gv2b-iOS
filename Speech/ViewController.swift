@@ -16,6 +16,7 @@
 import UIKit
 import AVFoundation
 import googleapis
+import QuartzCore
 
 let SAMPLE_RATE = 16000
 
@@ -26,8 +27,13 @@ class ViewController : UIViewController, AudioControllerDelegate {
   @IBOutlet weak var transcriptSpace: UIView!
   @IBOutlet weak var eventList: UIView!
   @IBOutlet weak var currentBidView: UIView!
+  @IBOutlet weak var currentBidLabel: UILabel!
+  @IBOutlet weak var menuView: UIView!
     
   var audioData: NSMutableData!
+    
+  let speechOnColor = UIColor(red:0.00, green:0.83, blue:0.78, alpha:1.0)
+  let speechOffColor = UIColor(red:0.15, green:0.15, blue:0.15, alpha:1.0)
     
   var currentBid: Int!      // variable for the current standing bid
   var tempResult : StreamingRecognitionResult!     // create variable to store Streaming Recognition Result for comparison
@@ -36,7 +42,11 @@ class ViewController : UIViewController, AudioControllerDelegate {
     super.viewDidLoad()
     AudioController.sharedInstance.delegate = self
     
-    textView.text = String()    // clear ui text screen
+    // set menu color to off
+    menuView.backgroundColor = speechOffColor
+    
+    // instantly hide ui elements
+    hideTranscriptArea(duration: 0.0)
   }
 
   @IBAction func recordAudio(_ sender: NSObject) {
@@ -50,42 +60,54 @@ class ViewController : UIViewController, AudioControllerDelegate {
     _ = AudioController.sharedInstance.prepare(specifiedSampleRate: SAMPLE_RATE)
     SpeechRecognitionService.sharedInstance.sampleRate = SAMPLE_RATE
     _ = AudioController.sharedInstance.start()
+
+    showTranscriptArea(duration: 0.5)    // animate show transcript area
+    
     micStart.isHidden = true
     micStop.isHidden = false
-    
-    showTranscriptArea()    // animate show transcript area
   }
 
   @IBAction func stopAudio(_ sender: NSObject) {
     _ = AudioController.sharedInstance.stop()
     SpeechRecognitionService.sharedInstance.stopStreaming()
+
+    hideTranscriptArea(duration: 0.5)    // animate hide transcipt area
+    
     micStart.isHidden = false
     micStop.isHidden = true
-    
-    hideTranscriptArea()    // animate hide transcipt area
   }
     
     // function to HIDE transcript area and text view with animation
-    func hideTranscriptArea() {
+    func hideTranscriptArea(duration: TimeInterval) {
         // animate the visibility of transcript text view to hide
-        UIView.animate(withDuration: 1, animations: {
+        UIView.animate(withDuration: duration, animations: {
             () -> Void in
-            self.textView.alpha = 0
+            self.menuView.backgroundColor = self.speechOffColor // set menu color to off
+            self.textView.alpha = 0 // fade out transcribe area
         }, completion: {
             // animate transcript area hiding
             (true) -> Void in
             self.textView.isHidden = true
-            UIView.animate(withDuration: 0.5, animations: { () -> Void in
+            UIView.animate(withDuration: duration, animations: { () -> Void in
                 // move top part of Transcript Space to hide the prior text view space
                 let transcriptSpaceFrame = CGRect(origin: CGPoint(x: 0,y : self.view.frame.maxY - 77), size: CGSize(width: self.view.frame.width, height: 450))
                 self.transcriptSpace.frame = transcriptSpaceFrame
                 
+                // hide current bid view
+                let currentBidViewFrame = CGRect(
+                    origin: CGPoint(x: 0,y : self.menuView.frame.minY),
+                    size: CGSize(
+                        width: self.view.frame.width,
+                        height: self.currentBidView.frame.height)
+                )
+                self.currentBidView.frame = currentBidViewFrame
+                
                 // move bottom part of event list View
                 let eventListViewFrame = CGRect(
-                    origin: CGPoint(x: 16,y : 210),
+                    origin: CGPoint(x: 16,y : self.currentBidView.frame.maxY + 16),
                     size: CGSize(
                         width: self.eventList.frame.width,
-                        height: (transcriptSpaceFrame.minY - 43 - self.eventList.frame.minY))
+                        height: (transcriptSpaceFrame.minY - 43 + self.currentBidView.frame.height - self.eventList.frame.minY))
                 )
                 self.eventList.frame = eventListViewFrame
             })
@@ -93,20 +115,29 @@ class ViewController : UIViewController, AudioControllerDelegate {
     }
     
     // function to SHOW transcript area and text view with animation
-    func showTranscriptArea() {
+    func showTranscriptArea(duration: TimeInterval) {
         // animate transcript area showing
-        UIView.animate(withDuration: 0.5, animations: {
+        UIView.animate(withDuration: duration, animations: {
             () -> Void in
             // move top part of Transcript Space to open for text view
             let transcriptSpaceFrame = CGRect(origin: CGPoint(x: 0,y :self.textView.frame.minY - 15), size: CGSize(width: self.view.frame.width, height: 450))
             self.transcriptSpace.frame = transcriptSpaceFrame
             
+            // show current bid view
+            let currentBidViewFrame = CGRect(
+                origin: CGPoint(x: 0,y : self.menuView.frame.maxY),
+                size: CGSize(
+                    width: self.view.frame.width,
+                    height: self.currentBidView.frame.height)
+            )
+            self.currentBidView.frame = currentBidViewFrame
+            
             // move bottom part of event list View
             let eventListViewFrame = CGRect(
-                origin: CGPoint(x: 16,y : 210),
+                origin: CGPoint(x: 16,y : self.currentBidView.frame.maxY + 16),
                 size: CGSize(
                     width: self.eventList.frame.width,
-                    height: (transcriptSpaceFrame.minY - 15 - self.eventList.frame.minY))
+                    height: (transcriptSpaceFrame.minY - 15 - self.currentBidView.frame.height - self.eventList.frame.minY))
             )
             self.eventList.frame = eventListViewFrame
         }, completion: {
@@ -114,7 +145,8 @@ class ViewController : UIViewController, AudioControllerDelegate {
             //      animate the visibility of transcript text view
             (true) -> Void in
             self.textView.isHidden = false
-            UIView.animate(withDuration: 1, animations: { () -> Void in
+            UIView.animate(withDuration: duration, animations: { () -> Void in
+                self.menuView.backgroundColor = self.speechOnColor // set menu color to on
                 self.textView.alpha = 1
             })
         })

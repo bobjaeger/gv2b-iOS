@@ -24,10 +24,13 @@ class ViewController : UIViewController, AudioControllerDelegate {
   @IBOutlet weak var micStart: UIButton!
   @IBOutlet weak var micStop: UIButton!
   @IBOutlet weak var transcriptSpace: UIView!
+  @IBOutlet weak var eventList: UIView!
+  @IBOutlet weak var currentBidView: UIView!
     
   var audioData: NSMutableData!
     
-  var currentBid: Int!  // variable for the current standing bid
+  var currentBid: Int!      // variable for the current standing bid
+  var tempResult : StreamingRecognitionResult!     // create variable to store Streaming Recognition Result for comparison
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -50,21 +53,7 @@ class ViewController : UIViewController, AudioControllerDelegate {
     micStart.isHidden = true
     micStop.isHidden = false
     
-    // animate transcript area showing
-    UIView.animate(withDuration: 0.5, animations: {
-        () -> Void in
-            // move top part of Transcript Space to open for text view
-            let frame = CGRect(origin: CGPoint(x: 0,y :self.textView.frame.minY - 15), size: CGSize(width: self.view.frame.width, height: 450))
-            self.transcriptSpace.frame = frame
-    }, completion: {
-        // on completion of transcript area showing
-        //      animate the visibility of transcript text view
-        (true) -> Void in
-        self.textView.isHidden = false
-        UIView.animate(withDuration: 1, animations: { () -> Void in
-            self.textView.alpha = 1
-        })
-    })
+    showTranscriptArea()    // animate show transcript area
   }
 
   @IBAction func stopAudio(_ sender: NSObject) {
@@ -73,21 +62,63 @@ class ViewController : UIViewController, AudioControllerDelegate {
     micStart.isHidden = false
     micStop.isHidden = true
     
-    // animate the visibility of transcript text view to hide
-    UIView.animate(withDuration: 1, animations: {
-        () -> Void in
-        self.textView.alpha = 0
-    }, completion: {
-        // animate transcript area hiding
-        (true) -> Void in
-        self.textView.isHidden = true
-        UIView.animate(withDuration: 0.5, animations: { () -> Void in
-            // move top part of Transcript Space to hide the prior text view space
-            let frame = CGRect(origin: CGPoint(x: 0,y : self.view.frame.maxY - 77), size: CGSize(width: self.view.frame.width, height: 450))
-            self.transcriptSpace.frame = frame
-        })
-    })
+    hideTranscriptArea()    // animate hide transcipt area
   }
+    
+    // function to HIDE transcript area and text view with animation
+    func hideTranscriptArea() {
+        // animate the visibility of transcript text view to hide
+        UIView.animate(withDuration: 1, animations: {
+            () -> Void in
+            self.textView.alpha = 0
+        }, completion: {
+            // animate transcript area hiding
+            (true) -> Void in
+            self.textView.isHidden = true
+            UIView.animate(withDuration: 0.5, animations: { () -> Void in
+                // move top part of Transcript Space to hide the prior text view space
+                let transcriptSpaceFrame = CGRect(origin: CGPoint(x: 0,y : self.view.frame.maxY - 77), size: CGSize(width: self.view.frame.width, height: 450))
+                self.transcriptSpace.frame = transcriptSpaceFrame
+                
+                // move bottom part of event list View
+                let eventListViewFrame = CGRect(
+                    origin: CGPoint(x: 16,y : 210),
+                    size: CGSize(
+                        width: self.eventList.frame.width,
+                        height: (transcriptSpaceFrame.minY - 43 - self.eventList.frame.minY))
+                )
+                self.eventList.frame = eventListViewFrame
+            })
+        })
+    }
+    
+    // function to SHOW transcript area and text view with animation
+    func showTranscriptArea() {
+        // animate transcript area showing
+        UIView.animate(withDuration: 0.5, animations: {
+            () -> Void in
+            // move top part of Transcript Space to open for text view
+            let transcriptSpaceFrame = CGRect(origin: CGPoint(x: 0,y :self.textView.frame.minY - 15), size: CGSize(width: self.view.frame.width, height: 450))
+            self.transcriptSpace.frame = transcriptSpaceFrame
+            
+            // move bottom part of event list View
+            let eventListViewFrame = CGRect(
+                origin: CGPoint(x: 16,y : 210),
+                size: CGSize(
+                    width: self.eventList.frame.width,
+                    height: (transcriptSpaceFrame.minY - 15 - self.eventList.frame.minY))
+            )
+            self.eventList.frame = eventListViewFrame
+        }, completion: {
+            // on completion of transcript area showing
+            //      animate the visibility of transcript text view
+            (true) -> Void in
+            self.textView.isHidden = false
+            UIView.animate(withDuration: 1, animations: { () -> Void in
+                self.textView.alpha = 1
+            })
+        })
+    }
 
   func processSampleData(_ data: Data) -> Void {
     audioData.append(data)
@@ -108,25 +139,46 @@ class ViewController : UIViewController, AudioControllerDelegate {
             if let error = error {
                 strongSelf.textView.text = error.localizedDescription
             } else if let response = response {
-                var finished = false
+                var finished = false    // flag to identify end of speech recognition result
                 
                 // if result or google api return is a streaming recognition result
                 for result in response.resultsArray! {
                     if let result = result as? StreamingRecognitionResult {
+                        var stable = false
                         
-                        // print the running transcript
-                        if let resultFirstAlt = result.alternativesArray.firstObject as? SpeechRecognitionAlternative {
-                            strongSelf.textView.text = resultFirstAlt.transcript  // add transcript to textView
-                            print(result)
+                        // if there has not been a recognition result yet
+                        if self?.tempResult == nil {
+                            // set recognition to temporary variable
+                            self?.tempResult = result
+                            stable = true
+                        } else if (self?.tempResult.stability)! <= result.stability {
+                            // otherwise if stability of result is equal or better then temporary variable
+                            // replace temp variable with more stable option
+                            self?.tempResult = result
+                            stable = true
+                        }
+                        
+                        // if recognition result is a stable result
+                        if stable == true {
+                            // print the running transcript
+                            if let resultFirstAlt = result.alternativesArray.firstObject as? SpeechRecognitionAlternative {
+                                strongSelf.textView.text = resultFirstAlt.transcript  // add transcript to textView
+                            }
                         }
                         
                         // check if final result
                         if result.isFinal {
                             finished = true
-                            print("YES")
+                            
+                            // print the running transcript
+                            if let resultFirstAlt = result.alternativesArray.firstObject as? SpeechRecognitionAlternative {
+                                strongSelf.textView.text = resultFirstAlt.transcript  // add transcript to textView
+                            }
+                            
+                            // reset temp result
+                            self?.tempResult = nil
                         }
                     }
-                    //strongSelf.textView.text = response.debugDescription
                 }
                 
                 /*if finished {

@@ -23,6 +23,7 @@ class ViewController : UIViewController, AudioControllerDelegate {
   @IBOutlet weak var textView: UITextView!
   @IBOutlet weak var micStart: UIButton!
   @IBOutlet weak var micStop: UIButton!
+  @IBOutlet weak var transcriptSpace: UIView!
     
   var audioData: NSMutableData!
     
@@ -48,6 +49,22 @@ class ViewController : UIViewController, AudioControllerDelegate {
     _ = AudioController.sharedInstance.start()
     micStart.isHidden = true
     micStop.isHidden = false
+    
+    // animate transcript area showing
+    UIView.animate(withDuration: 0.5, animations: {
+        () -> Void in
+            // move top part of Transcript Space to open for text view
+            let frame = CGRect(origin: CGPoint(x: 0,y :self.textView.frame.minY - 15), size: CGSize(width: self.view.frame.width, height: 450))
+            self.transcriptSpace.frame = frame
+    }, completion: {
+        // on completion of transcript area showing
+        //      animate the visibility of transcript text view
+        (true) -> Void in
+        self.textView.isHidden = false
+        UIView.animate(withDuration: 1, animations: { () -> Void in
+            self.textView.alpha = 1
+        })
+    })
   }
 
   @IBAction func stopAudio(_ sender: NSObject) {
@@ -55,6 +72,21 @@ class ViewController : UIViewController, AudioControllerDelegate {
     SpeechRecognitionService.sharedInstance.stopStreaming()
     micStart.isHidden = false
     micStop.isHidden = true
+    
+    // animate the visibility of transcript text view to hide
+    UIView.animate(withDuration: 1, animations: {
+        () -> Void in
+        self.textView.alpha = 0
+    }, completion: {
+        // animate transcript area hiding
+        (true) -> Void in
+        self.textView.isHidden = true
+        UIView.animate(withDuration: 0.5, animations: { () -> Void in
+            // move top part of Transcript Space to hide the prior text view space
+            let frame = CGRect(origin: CGPoint(x: 0,y : self.view.frame.maxY - 77), size: CGSize(width: self.view.frame.width, height: 450))
+            self.transcriptSpace.frame = frame
+        })
+    })
   }
 
   func processSampleData(_ data: Data) -> Void {

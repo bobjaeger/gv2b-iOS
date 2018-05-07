@@ -135,7 +135,7 @@
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5T3-8F-wPJ">
                                 <rect key="frame" x="16" y="210" width="343" height="337"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" heightSizable="YES"/>
-                                <color key="backgroundColor" red="0.99278582334931287" green="0.94720426659672052" blue="1" alpha="0.20165346746575341" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="backgroundColor" red="0.99278582334931287" green="0.94720426659672052" blue="1" alpha="0.097254922945205477" colorSpace="custom" customColorSpace="sRGB"/>
                             </scrollView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

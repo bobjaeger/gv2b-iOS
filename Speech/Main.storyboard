@@ -129,7 +129,7 @@
                                 <rect key="frame" x="16" y="467" width="343" height="80"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="12"/>
+                                <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="18"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5T3-8F-wPJ">
@@ -144,7 +144,7 @@
                     <connections>
                         <outlet property="currentBidLabel" destination="1dQ-dP-rHy" id="xM6-ck-io1"/>
                         <outlet property="currentBidView" destination="gcc-Ve-suH" id="gl6-R3-4rY"/>
-                        <outlet property="eventList" destination="5T3-8F-wPJ" id="762-fw-Vij"/>
+                        <outlet property="eventList" destination="5T3-8F-wPJ" id="Ega-fe-eQD"/>
                         <outlet property="menuView" destination="3Tk-Hj-9DE" id="V4V-oo-QFl"/>
                         <outlet property="micStart" destination="aJY-83-MIx" id="f9K-5z-PPO"/>
                         <outlet property="micStop" destination="wgH-jh-Nuq" id="GWw-ve-9za"/>

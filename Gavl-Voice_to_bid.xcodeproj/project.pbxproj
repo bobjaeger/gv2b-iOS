@@ -14,6 +14,7 @@
 		3A15E5B920A0B4C80037FF2F /* NaturalLanguageClassifierV1.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3A15E5AE20A0A18E0037FF2F /* NaturalLanguageClassifierV1.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3A15E5BA20A0B4C80037FF2F /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A15E5AD20A0A18E0037FF2F /* Starscream.framework */; };
 		3A15E5BB20A0B4C80037FF2F /* Starscream.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3A15E5AD20A0A18E0037FF2F /* Starscream.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3ACA877E20A2D4C100C4D0D1 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3ACA877D20A2D4C000C4D0D1 /* GoogleService-Info.plist */; };
 		D31E0EB81D778A56006A50AB /* SpeechRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31E0EB71D778A56006A50AB /* SpeechRecognitionService.swift */; };
 		D31E0EBA1D77AA2F006A50AB /* AudioController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31E0EB91D77AA2F006A50AB /* AudioController.swift */; };
 		D34C17D91C948F5800D69BCA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D34C17D81C948F5800D69BCA /* Assets.xcassets */; };
@@ -41,6 +42,7 @@
 /* Begin PBXFileReference section */
 		3A15E5AD20A0A18E0037FF2F /* Starscream.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Starscream.framework; path = Carthage/Build/iOS/Starscream.framework; sourceTree = "<group>"; };
 		3A15E5AE20A0A18E0037FF2F /* NaturalLanguageClassifierV1.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NaturalLanguageClassifierV1.framework; path = Carthage/Build/iOS/NaturalLanguageClassifierV1.framework; sourceTree = "<group>"; };
+		3ACA877D20A2D4C000C4D0D1 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		54C3D1E96C8C43AB14662311 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		5E83ACE29B0D0DF0085BA8F2 /* Pods-Speech.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Speech.release.xcconfig"; path = "Pods/Target Support Files/Pods-Speech/Pods-Speech.release.xcconfig"; sourceTree = "<group>"; };
 		6C682F8DD9C94E41979FE816 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
@@ -111,6 +113,7 @@
 				D34C17D81C948F5800D69BCA /* Assets.xcassets */,
 				D31E0EB91D77AA2F006A50AB /* AudioController.swift */,
 				D34C17DD1C948F5800D69BCA /* Info.plist */,
+				3ACA877D20A2D4C000C4D0D1 /* GoogleService-Info.plist */,
 				D34C17DA1C948F5800D69BCA /* LaunchScreen.storyboard */,
 				D392D9851C94937D002F5132 /* Main.storyboard */,
 				D3E34E9F1D77541C00EF755D /* Speech-Bridging-Header.h */,
@@ -151,7 +154,6 @@
 				D34C17C61C948F5700D69BCA /* Frameworks */,
 				D34C17C71C948F5700D69BCA /* Resources */,
 				A6C1304F9E6165DD748FC67B /* [CP] Embed Pods Frameworks */,
-				D8EE167099E5A7E524284D70 /* [CP] Copy Pods Resources */,
 				3A15E5BC20A0B4C80037FF2F /* Embed Frameworks */,
 			);
 			buildRules = (
@@ -202,6 +204,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D392D9861C94937D002F5132 /* Main.storyboard in Resources */,
+				3ACA877E20A2D4C100C4D0D1 /* GoogleService-Info.plist in Resources */,
 				D34C17DC1C948F5800D69BCA /* LaunchScreen.storyboard in Resources */,
 				D34C17D91C948F5800D69BCA /* Assets.xcassets in Resources */,
 			);
@@ -218,23 +221,27 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-Speech/Pods-Speech-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/BoringSSL/openssl.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf/Protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC/GRPCClient.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-Core/grpc.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-ProtoRPC/ProtoRPC.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-RxLibrary/RxLibrary.framework",
 				"${BUILT_PRODUCTS_DIR}/googleapis/googleapis.framework",
+				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
 				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GRPCClient.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpc.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ProtoRPC.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxLibrary.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/googleapis.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -258,21 +265,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		D8EE167099E5A7E524284D70 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Speech/Pods-Speech-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */

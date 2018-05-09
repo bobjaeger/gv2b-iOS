@@ -1,24 +1,25 @@
+#if !defined(GPB_GRPC_PROTOCOL_ONLY) || !GPB_GRPC_PROTOCOL_ONLY
 #import "google/cloud/speech/v1/CloudSpeech.pbrpc.h"
 #import <googleapis/CloudSpeech.pbobjc.h>
-
 #import <ProtoRPC/ProtoRPC.h>
 #import <RxLibrary/GRXWriter+Immediate.h>
+
 #import <googleapis/Annotations.pbobjc.h>
 #import <googleapis/Operations.pbobjc.h>
-#if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
-  #import <Protobuf/Any.pbobjc.h>
+#if defined(GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS) && GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
+#import <Protobuf/Any.pbobjc.h>
 #else
-  #import "google/protobuf/Any.pbobjc.h"
+#import "google/protobuf/Any.pbobjc.h"
 #endif
-#if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
-  #import <Protobuf/Duration.pbobjc.h>
+#if defined(GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS) && GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
+#import <Protobuf/Duration.pbobjc.h>
 #else
-  #import "google/protobuf/Duration.pbobjc.h"
+#import "google/protobuf/Duration.pbobjc.h"
 #endif
-#if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
-  #import <Protobuf/Timestamp.pbobjc.h>
+#if defined(GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS) && GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
+#import <Protobuf/Timestamp.pbobjc.h>
 #else
-  #import "google/protobuf/Timestamp.pbobjc.h"
+#import "google/protobuf/Timestamp.pbobjc.h"
 #endif
 #import <googleapis/Status.pbobjc.h>
 
@@ -26,7 +27,10 @@
 
 // Designated initializer
 - (instancetype)initWithHost:(NSString *)host {
-  return (self = [super initWithHost:host packageName:@"google.cloud.speech.v1" serviceName:@"Speech"]);
+  self = [super initWithHost:host
+                 packageName:@"google.cloud.speech.v1"
+                 serviceName:@"Speech"];
+  return self;
 }
 
 // Override superclass initializer to disallow different package and service names.
@@ -36,10 +40,13 @@
   return [self initWithHost:host];
 }
 
+#pragma mark - Class Methods
+
 + (instancetype)serviceWithHost:(NSString *)host {
   return [[self alloc] initWithHost:host];
 }
 
+#pragma mark - Method Implementations
 
 #pragma mark Recognize(RecognizeRequest) returns (RecognizeResponse)
 
@@ -106,3 +113,4 @@
         responsesWriteable:[GRXWriteable writeableWithEventHandler:eventHandler]];
 }
 @end
+#endif

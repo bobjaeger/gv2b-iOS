@@ -16,6 +16,12 @@
 import UIKit
 import AVFoundation
 import googleapis
+import FirebaseDatabase
+
+let currentBidLabelPreset = "CURRENT BID: $"
+
+// set data base reference on load
+var ref: DatabaseReference!
 
 let SAMPLE_RATE = 16000
 
@@ -51,7 +57,22 @@ extension UIScrollView {
  myScrollView.scrollTo(.Top/.Right/.Bottom/.Left, animated: false)  // Without animation
  */
 
-class ViewController : UIViewController, AudioControllerDelegate {
+extension String {
+    subscript (bounds: CountableClosedRange<Int>) -> String {
+        let start = index(startIndex, offsetBy: bounds.lowerBound)
+        let end = index(startIndex, offsetBy: bounds.upperBound)
+        return String(self[start...end])
+    }
+    
+    subscript (bounds: CountableRange<Int>) -> String {
+        let start = index(startIndex, offsetBy: bounds.lowerBound)
+        let end = index(startIndex, offsetBy: bounds.upperBound)
+        return String(self[start..<end])
+    }
+}
+
+class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDelegate, UIPickerViewDataSource {
+    
   @IBOutlet weak var textView: UITextView!
   @IBOutlet weak var micStart: UIButton!
   @IBOutlet weak var micStop: UIButton!
@@ -60,28 +81,151 @@ class ViewController : UIViewController, AudioControllerDelegate {
   @IBOutlet weak var currentBidView: UIView!
   @IBOutlet weak var currentBidLabel: UILabel!
   @IBOutlet weak var menuView: UIView!
+  @IBOutlet weak var manualEnter: UIButton!
+  @IBOutlet weak var manualPickerContainer: UIView!
+    
+  @IBOutlet weak var pickOne: UIPickerView!
     
   var audioData: NSMutableData!
     
   var uiViewEventArray: [UIView] = []
     
+  // color presets for programmatical changes
   let speechOnColor = UIColor(red:0.00, green:0.83, blue:0.78, alpha:1.0)
   let speechOffColor = UIColor(red:0.15, green:0.15, blue:0.15, alpha:1.0)
+  let currentBidStock = UIColor(red:0.30, green:0.30, blue:0.31, alpha:1.0)
     
-  var currentBid: Int!      // variable for the current standing bid
+  var currentBid: Int! = 0      // variable for the current standing bid
   var tempResult : StreamingRecognitionResult!     // create variable to store Streaming Recognition Result for comparison
 
+  // variable to set database reference on load
+  var ref: DatabaseReference!
+  var databaseHandle: DatabaseHandle?
+    
+  // populate pickers with numbers
+  var numsMil = Array(stride(from: 20, through: 0, by: -1))
+  var nums = Array(stride(from: 999, through: 0, by: -1))
+  var numsOnes = Array(stride(from: 900, through: 0, by: -100))
+    
   override func viewDidLoad() {
     super.viewDidLoad()
     AudioController.sharedInstance.delegate = self
     
     // set menu color to off
-    menuView.backgroundColor = speechOffColor
+    //menuView.backgroundColor = speechOffColor
     
     // instantly hide ui elements
     hideTranscriptArea(duration: 0.0)
+    
+    // set the firebase reference
+    ref = Database.database().reference()
+    
+    // retrieve current bid snapshot and listen for changes
+    databaseHandle = ref?.child("Bids").observe(.childChanged, with: { (snapshot) in
+        if snapshot.key == "currentBid" {
+            // get current bid value
+            let databaseCurrentBid = snapshot.value as! Int
+            print(databaseCurrentBid)
+            
+            // format current bid to appropriate comma seperation
+            let numberFormatter = NumberFormatter()
+            numberFormatter.numberStyle = NumberFormatter.Style.decimal
+            let formattedNumber = numberFormatter.string(from: NSNumber(value:databaseCurrentBid))
+            
+            // set current bid to current bid title
+            self.currentBid = databaseCurrentBid
+            self.currentBidLabel.text = (currentBidLabelPreset + formattedNumber!)
+            
+            // flash current bid view upon value update
+            self.currentBidChanged()
+        }
+    })
+    
+    // Set dataSource and delegate to this class (self).
+    self.pickOne.dataSource = self
+    self.pickOne.delegate = self
+    
+    // set border color
+    self.manualPickerContainer.layer.borderWidth = 3
+    self.manualPickerContainer.layer.borderColor = currentBidStock.cgColor
+  }
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        // Column count: use one column.
+        return 3
+    }
+    func pickerView(_ pickerView: UIPickerView,
+                    numberOfRowsInComponent component: Int) -> Int {
+        // Row count: rows equals array length.
+        if component == 0
+        { return numsMil.count }
+        else if component == 2
+        { return numsOnes.count }
+        
+        return nums.count
+    }
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        // Return a string from the array for this row.
+        if component == 0
+        { return String(numsMil[row]) }
+        else if component == 2
+        { return String(numsOnes[row]) }
+        
+        return String(nums[row])
+    }
+    func pickerView(_ pickerView: UIPickerView, attributedTitleForRow row: Int, forComponent component: Int) -> NSAttributedString? {
+        let attributedString = NSAttributedString(string: String(format: "%03d", nums[row]), attributes: [NSForegroundColorAttributeName : UIColor.white])
+        
+        if component == 0
+        { return NSAttributedString(string: String(numsMil[row]), attributes: [NSForegroundColorAttributeName : UIColor.white]) }
+        else if component == 2
+        { return NSAttributedString(string: String(format: "%03d", numsOnes[row]), attributes: [NSForegroundColorAttributeName : UIColor.white]) }
+        
+        return attributedString
+    }
+
+  // flash color change upon current bid value update
+  func currentBidChanged() {
+    UIView.animate(withDuration: 0.2, animations: { () -> Void in
+        // color
+        self.currentBidView.backgroundColor = self.speechOnColor
+    }, completion: {
+        (true) -> Void in
+        UIView.animate(withDuration: 0.2, animations: { () -> Void in
+            // uncolor
+            self.currentBidView.backgroundColor = self.currentBidStock
+        })
+    })
   }
 
+  // set the new current bid value
+  func setCurrentBidValue(currentBid: Int) -> Void {
+    ref?.child("Bids").updateChildValues(["currentBid": currentBid])
+  }
+
+  // accept bid
+  @IBAction func acceptBid(_ sender: UIButton) {
+    let milNum = numsMil[pickOne.selectedRow(inComponent: 0)] * 1000000
+    let thoNum = nums[pickOne.selectedRow(inComponent: 1)] * 1000
+    let oneNum = numsOnes[pickOne.selectedRow(inComponent: 2)]
+    let bidNumber = Int(milNum + thoNum + oneNum)
+    
+    // if bid is not greater then current bid
+    if bidNumber <= currentBid
+    { showHideManualEntry(sender) }
+    else
+    {
+        // add current bid to database
+        setCurrentBidValue(currentBid: bidNumber)
+        showHideManualEntry(sender)
+    }
+  }
+    
+  // decline bid
+  @IBAction func declineBid(_ sender: UIButton) {
+    showHideManualEntry(sender)
+  }
+    
   @IBAction func recordAudio(_ sender: NSObject) {
     let audioSession = AVAudioSession.sharedInstance()
     do {
@@ -106,7 +250,9 @@ class ViewController : UIViewController, AudioControllerDelegate {
   @IBAction func stopAudio(_ sender: NSObject) {
     _ = AudioController.sharedInstance.stop()
     SpeechRecognitionService.sharedInstance.stopStreaming()
-
+    
+    hideManualEntry() // hide manual entry area
+    
     hideTranscriptArea(duration: 0.5)    // animate hide transcipt area
     
     micStart.isHidden = false
@@ -116,6 +262,56 @@ class ViewController : UIViewController, AudioControllerDelegate {
     eventList.scrollTo(direction: .Bottom, animated: true)
   }
     
+    // show manual entry view
+    func showManualEntry() {
+        // prepare to preset pickers
+        let strCB = String(format: "%09d", currentBid)
+        let compOne = Int(strCB[6...8])
+        let compTho = Int(strCB[3...5])
+        let compMil = Int(strCB[0...2])
+        
+        // find index for pickers preset
+        let milIndex = numsMil.index(of: compMil!) as Int! ?? numsMil.count-1
+        let thoIndex = nums.index(of: compTho!) as Int! ?? nums.count-1
+        let oneIndex = numsOnes.index(of: compOne!) as Int! ?? numsOnes.count-1
+        
+        // set pickers to respective rows
+        pickOne.selectRow(milIndex, inComponent: 0, animated: false)
+        pickOne.selectRow(thoIndex, inComponent: 1, animated: false)
+        pickOne.selectRow(oneIndex, inComponent: 2, animated: false)
+        manualPickerContainer.isHidden = false
+        
+        // animate manual entry show
+        let showMP = CGRect(origin: CGPoint(x: 15, y: 210), size: self.manualPickerContainer.frame.size)
+        UIView.animate(withDuration: 0.2, animations: {
+            () -> Void in
+            self.manualPickerContainer.frame = showMP
+        })
+    }
+    
+    func hideManualEntry() {
+        // animate manual entry hide
+        let hideMP = CGRect(origin: CGPoint(x: 15, y: -100), size: self.manualPickerContainer.frame.size)
+        UIView.animate(withDuration: 0.2, animations: {
+            () -> Void in
+            self.manualPickerContainer.frame = hideMP
+        }, completion: { (true) -> Void in
+            self.manualPickerContainer.isHidden = true
+        })
+    }
+    
+  // show or hide manual entry
+  @IBAction func showHideManualEntry(_ sender: UIButton) {
+    if manualPickerContainer.isHidden
+    {
+        showManualEntry()
+    }
+    else
+    {
+        hideManualEntry()
+    }
+  }
+    
     // function to HIDE transcript area and text view with animation
     func hideTranscriptArea(duration: TimeInterval) {
         // animate the visibility of transcript text view to hide
@@ -123,10 +319,12 @@ class ViewController : UIViewController, AudioControllerDelegate {
             () -> Void in
             self.menuView.backgroundColor = self.speechOffColor // set menu color to off
             self.textView.alpha = 0 // fade out transcribe area
+            self.manualEnter.alpha = 0 // fade out manual entry button
         }, completion: {
             // animate transcript area hiding
             (true) -> Void in
             self.textView.isHidden = true
+            self.manualEnter.isHidden = true    // unhide manual entry button
             UIView.animate(withDuration: duration, animations: { () -> Void in
                 // move top part of Transcript Space to hide the prior text view space
                 let transcriptSpaceFrame = CGRect(origin: CGPoint(x: 0,y : self.view.frame.maxY - 77), size: CGSize(width: self.view.frame.width, height: 450))
@@ -184,9 +382,11 @@ class ViewController : UIViewController, AudioControllerDelegate {
             //      animate the visibility of transcript text view
             (true) -> Void in
             self.textView.isHidden = false
+            self.manualEnter.isHidden = false // hide manual entry button
             UIView.animate(withDuration: duration*2, animations: { () -> Void in
                 self.menuView.backgroundColor = self.speechOnColor // set menu color to on
                 self.textView.alpha = 1
+                self.manualEnter.alpha = 1 // fade in manual entry button
             })
         })
     }
@@ -255,7 +455,6 @@ class ViewController : UIViewController, AudioControllerDelegate {
                 strongSelf.textView.text = error.localizedDescription
             } else if let response = response {
                 var finished = false    // flag to identify end of speech recognition result
-                print(response)
                 
                 // if result or google api return is a streaming recognition result
                 for result in response.resultsArray! {
@@ -293,6 +492,7 @@ class ViewController : UIViewController, AudioControllerDelegate {
                                 
                                 // add event to event list
                                 self?.addFinalTranscription(transcription: resultFirstAlt.transcript)
+                                print(resultFirstAlt.transcript)
                             }
                             
                             // reset temp result

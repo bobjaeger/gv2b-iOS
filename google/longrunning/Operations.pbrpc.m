@@ -1,18 +1,19 @@
+#if !defined(GPB_GRPC_PROTOCOL_ONLY) || !GPB_GRPC_PROTOCOL_ONLY
 #import "google/longrunning/Operations.pbrpc.h"
 #import <googleapis/Operations.pbobjc.h>
-
 #import <ProtoRPC/ProtoRPC.h>
 #import <RxLibrary/GRXWriter+Immediate.h>
+
 #import <googleapis/Annotations.pbobjc.h>
-#if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
-  #import <Protobuf/Any.pbobjc.h>
+#if defined(GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS) && GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
+#import <Protobuf/Any.pbobjc.h>
 #else
-  #import "google/protobuf/Any.pbobjc.h"
+#import "google/protobuf/Any.pbobjc.h"
 #endif
-#if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
-  #import <Protobuf/Empty.pbobjc.h>
+#if defined(GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS) && GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
+#import <Protobuf/Empty.pbobjc.h>
 #else
-  #import "google/protobuf/Empty.pbobjc.h"
+#import "google/protobuf/Empty.pbobjc.h"
 #endif
 #import <googleapis/Status.pbobjc.h>
 
@@ -20,7 +21,10 @@
 
 // Designated initializer
 - (instancetype)initWithHost:(NSString *)host {
-  return (self = [super initWithHost:host packageName:@"google.longrunning" serviceName:@"Operations"]);
+  self = [super initWithHost:host
+                 packageName:@"google.longrunning"
+                 serviceName:@"Operations"];
+  return self;
 }
 
 // Override superclass initializer to disallow different package and service names.
@@ -30,10 +34,13 @@
   return [self initWithHost:host];
 }
 
+#pragma mark - Class Methods
+
 + (instancetype)serviceWithHost:(NSString *)host {
   return [[self alloc] initWithHost:host];
 }
 
+#pragma mark - Method Implementations
 
 #pragma mark GetOperation(GetOperationRequest) returns (Operation)
 
@@ -128,3 +135,4 @@
         responsesWriteable:[GRXWriteable writeableWithSingleHandler:handler]];
 }
 @end
+#endif

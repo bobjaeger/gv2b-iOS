@@ -47,8 +47,9 @@ class SpeechRecognitionService {
       // if the API key has a bundle ID restriction, specify the bundle ID like this
       call.requestHeaders.setObject(NSString(string:Bundle.main.bundleIdentifier!),
                                     forKey:NSString(string:"X-Ios-Bundle-Identifier"))
-
-      print("HEADERS:\(call.requestHeaders)")
+      
+      // Dont print header or api info
+      //print("HEADERS:\(call.requestHeaders)")
 
       call.start()
       streaming = true

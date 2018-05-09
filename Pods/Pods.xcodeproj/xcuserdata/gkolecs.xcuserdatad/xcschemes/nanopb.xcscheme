@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0700"
+   LastUpgradeVersion = "0930"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -13,11 +13,11 @@
             buildForProfiling = "YES"
             buildForArchiving = "YES">
             <BuildableReference
-               BuildableIdentifier = 'primary'
-               BlueprintIdentifier = 'B86762ABA9D0AC7B96915120D7FD5E31'
-               BlueprintName = 'nanopb'
-               ReferencedContainer = 'container:Pods.xcodeproj'
-               BuildableName = 'nanopb.framework'>
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B86762ABA9D0AC7B96915120D7FD5E31"
+               BlueprintName = "nanopb"
+               ReferencedContainer = "container:Pods.xcodeproj"
+               BuildableName = "nanopb.framework">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>

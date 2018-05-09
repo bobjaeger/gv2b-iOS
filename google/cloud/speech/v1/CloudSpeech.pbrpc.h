@@ -1,13 +1,15 @@
-#if !GPB_GRPC_FORWARD_DECLARE_MESSAGE_PROTO
+#if !defined(GPB_GRPC_FORWARD_DECLARE_MESSAGE_PROTO) || !GPB_GRPC_FORWARD_DECLARE_MESSAGE_PROTO
 #import <googleapis/CloudSpeech.pbobjc.h>
 #endif
 
+#if !defined(GPB_GRPC_PROTOCOL_ONLY) || !GPB_GRPC_PROTOCOL_ONLY
 #import <ProtoRPC/ProtoService.h>
 #import <ProtoRPC/ProtoRPC.h>
 #import <RxLibrary/GRXWriteable.h>
 #import <RxLibrary/GRXWriter.h>
+#endif
 
-#if GPB_GRPC_FORWARD_DECLARE_MESSAGE_PROTO
+#if defined(GPB_GRPC_FORWARD_DECLARE_MESSAGE_PROTO) && GPB_GRPC_FORWARD_DECLARE_MESSAGE_PROTO
   @class LongRunningRecognizeRequest;
   @class Operation;
   @class RecognizeRequest;
@@ -17,23 +19,25 @@
 #else
   #import <googleapis/Annotations.pbobjc.h>
   #import <googleapis/Operations.pbobjc.h>
-  #if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
-    #import <Protobuf/Any.pbobjc.h>
-  #else
-    #import "google/protobuf/Any.pbobjc.h"
-  #endif
-  #if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
-    #import <Protobuf/Duration.pbobjc.h>
-  #else
-    #import "google/protobuf/Duration.pbobjc.h"
-  #endif
-  #if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
-    #import <Protobuf/Timestamp.pbobjc.h>
-  #else
-    #import "google/protobuf/Timestamp.pbobjc.h"
-  #endif
+#if defined(GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS) && GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
+  #import <Protobuf/Any.pbobjc.h>
+#else
+  #import "google/protobuf/Any.pbobjc.h"
+#endif
+#if defined(GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS) && GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
+  #import <Protobuf/Duration.pbobjc.h>
+#else
+  #import "google/protobuf/Duration.pbobjc.h"
+#endif
+#if defined(GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS) && GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
+  #import <Protobuf/Timestamp.pbobjc.h>
+#else
+  #import "google/protobuf/Timestamp.pbobjc.h"
+#endif
   #import <googleapis/Status.pbobjc.h>
 #endif
+
+@class GRPCProtoCall;
 
 
 NS_ASSUME_NONNULL_BEGIN
@@ -91,6 +95,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+
+#if !defined(GPB_GRPC_PROTOCOL_ONLY) || !GPB_GRPC_PROTOCOL_ONLY
 /**
  * Basic service implementation, over gRPC, that only does
  * marshalling and parsing.
@@ -99,5 +105,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithHost:(NSString *)host NS_DESIGNATED_INITIALIZER;
 + (instancetype)serviceWithHost:(NSString *)host;
 @end
+#endif
 
 NS_ASSUME_NONNULL_END
+

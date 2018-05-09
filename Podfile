@@ -6,8 +6,8 @@ use_frameworks!
 
 target 'Speech' do
 
+  pod 'Firebase/Core'
+  pod 'Firebase/Database'
   pod 'googleapis', :path => '.'
 
 end
-
-

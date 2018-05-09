@@ -70,6 +70,15 @@ extension String {
         return String(self[start..<end])
     }
 }
+extension Int {
+    func commaSeperateFormat() -> String {
+        // format current bid to appropriate comma seperation
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = NumberFormatter.Style.decimal
+        let formattedNumber = numberFormatter.string(from: NSNumber(value:self))
+        return formattedNumber!
+    }
+}
 
 class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDelegate, UIPickerViewDataSource {
     
@@ -111,9 +120,6 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     super.viewDidLoad()
     AudioController.sharedInstance.delegate = self
     
-    // set menu color to off
-    //menuView.backgroundColor = speechOffColor
-    
     // instantly hide ui elements
     hideTranscriptArea(duration: 0.0)
     
@@ -127,17 +133,15 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
             let databaseCurrentBid = snapshot.value as! Int
             print(databaseCurrentBid)
             
-            // format current bid to appropriate comma seperation
-            let numberFormatter = NumberFormatter()
-            numberFormatter.numberStyle = NumberFormatter.Style.decimal
-            let formattedNumber = numberFormatter.string(from: NSNumber(value:databaseCurrentBid))
-            
             // set current bid to current bid title
             self.currentBid = databaseCurrentBid
-            self.currentBidLabel.text = (currentBidLabelPreset + formattedNumber!)
+            self.currentBidLabel.text = (currentBidLabelPreset + databaseCurrentBid.commaSeperateFormat())
             
             // flash current bid view upon value update
             self.currentBidChanged()
+            
+            // set bubble to eventlist
+            self.addEventBubble(eventText: ("$"+self.currentBid.commaSeperateFormat()), eventType: .bidSubmitted)
         }
     })
     
@@ -197,7 +201,16 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
         })
     })
   }
-
+    
+  // double tap gesture to swap sides of heavy to navigate middle picker
+  @IBAction func dblTapThou(_ sender: UITapGestureRecognizer) {
+    if pickOne.selectedRow(inComponent: 1) > (nums.count/2) {
+        pickOne.selectRow(nums[nums.count-1], inComponent: 1, animated: true)
+    } else {
+        pickOne.selectRow(nums[0], inComponent: 1, animated: true)
+    }
+  }
+    
   // set the new current bid value
   func setCurrentBidValue(currentBid: Int) -> Void {
     ref?.child("Bids").updateChildValues(["currentBid": currentBid])
@@ -212,18 +225,20 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     
     // if bid is not greater then current bid
     if bidNumber <= currentBid
-    { showHideManualEntry(sender) }
+    {
+        addEventBubble(eventText: "Must be greater then current Bid", eventType: .warning)
+    }
     else
     {
         // add current bid to database
         setCurrentBidValue(currentBid: bidNumber)
-        showHideManualEntry(sender)
     }
+    hideManualEntry()
   }
     
   // decline bid
   @IBAction func declineBid(_ sender: UIButton) {
-    showHideManualEntry(sender)
+    hideManualEntry()
   }
     
   @IBAction func recordAudio(_ sender: NSObject) {
@@ -245,6 +260,12 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     
     // Scroll to bottom of scroll view
     eventList.scrollTo(direction: .Bottom, animated: true)
+    
+    for view in eventList.subviews{
+        view.removeFromSuperview()
+    }
+    
+    addEventBubble(eventText: "Stream Started", eventType: .streamStarted)
   }
 
   @IBAction func stopAudio(_ sender: NSObject) {
@@ -258,8 +279,7 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     micStart.isHidden = false
     micStop.isHidden = true
     
-    // Scroll to bottom of scroll view
-    eventList.scrollTo(direction: .Bottom, animated: true)
+    addEventBubble(eventText: "Stream Stopped", eventType: .streamEnded)
   }
     
     // show manual entry view
@@ -347,6 +367,10 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
                         height: (transcriptSpaceFrame.minY - 43 + self.currentBidView.frame.height - self.eventList.frame.minY))
                 )
                 self.eventList.frame = eventListViewFrame
+            }, completion: {
+                (true) -> Void in
+                // re scroll to bottom of event list
+                self.eventList.scrollTo(direction: .Bottom, animated: true)
             })
         })
     }
@@ -391,8 +415,19 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
         })
     }
     
+    // enums for specified event
+    enum auctionEvent {
+        case streamStarted
+        case auctionStart
+        case bidSubmitted
+        case warning
+        case nothing
+        case auctionEnd
+        case streamEnded
+    }
+    
     // add event or bubble to final transcription
-    func addFinalTranscription(transcription: String) {
+    func addEventBubble(eventText: String, eventType: auctionEvent) {
         let addedView = UIView()
         addedView.frame = CGRect(
             origin: CGPoint(x: 0,y : Int(eventList.frame.height) + (50 * uiViewEventArray.count) ),
@@ -408,12 +443,27 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
                 height: 40)
         )
         transcriptLabel.center = CGPoint(x: addedView.frame.width/2, y: addedView.frame.height/2)
-        transcriptLabel.font.withSize(6.0)
-        transcriptLabel.backgroundColor = UIColor(red:1.00, green:1.00, blue:1.00, alpha:1.0)
+        transcriptLabel.font = UIFont(name:transcriptLabel.font.fontName, size: 18.0)
+        transcriptLabel.textAlignment = NSTextAlignment.left
+        
+        if eventType == .nothing
+        { transcriptLabel.backgroundColor = UIColor(red:1.00, green:1.00, blue:1.00, alpha:1.0) }
+        else if eventType == .bidSubmitted
+        {
+            transcriptLabel.backgroundColor = speechOnColor
+            transcriptLabel.textAlignment = NSTextAlignment.right
+            transcriptLabel.font = UIFont(name:transcriptLabel.font.fontName, size: 20.0)
+        } else if eventType == .streamStarted || eventType == .streamEnded {
+            transcriptLabel.backgroundColor = UIColor.gray
+            transcriptLabel.font = UIFont(name:transcriptLabel.font.fontName, size: 18.0)
+        } else if eventType == .warning {
+            transcriptLabel.backgroundColor = UIColor.yellow
+            transcriptLabel.font = UIFont(name:transcriptLabel.font.fontName, size: 18.0)
+        }
+        
+        transcriptLabel.text = "  "+eventText+"  "
         transcriptLabel.layer.masksToBounds = true
         transcriptLabel.layer.cornerRadius = 20
-        transcriptLabel.text = transcription
-        transcriptLabel.textAlignment = NSTextAlignment.right
         addedView.addSubview(transcriptLabel)
         
         // add to uiViewArray
@@ -491,7 +541,7 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
                                 strongSelf.textView.text = resultFirstAlt.transcript
                                 
                                 // add event to event list
-                                self?.addFinalTranscription(transcription: resultFirstAlt.transcript)
+                                self?.addEventBubble(eventText: resultFirstAlt.transcript, eventType: .nothing)
                                 print(resultFirstAlt.transcript)
                             }
                             

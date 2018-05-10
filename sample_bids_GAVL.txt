@@ -1,0 +1,26 @@
+Actual Bids:
+===============================
+At $x,xxx,xxxx
+$x,xxx,xxx is the bid here now
+$x,xxx,xxx the bid now
+at 1.9
+at 1.910
+1.9.3.5 here
+1.9.6.5 the bid here
+
+Suggested Bids:
+===============================
+can we say $x,xxx,xxx
+$x,xxx,xxx can we say
+
+
+End of Auction:
+===============================
+Selling, selling and sold
+
+
+Classifiers:
+===============================
+ackBid		acknowledged bid
+sugBid		suggested bid
+eoa			end of auction

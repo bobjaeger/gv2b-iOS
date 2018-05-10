@@ -16,7 +16,14 @@
 import UIKit
 import AVFoundation
 import googleapis
+import NaturalLanguageClassifierV1
 import FirebaseDatabase
+
+// prepare Natural Language Classifier
+let username = ""
+let password = ""
+let naturalLanguageClassifier = NaturalLanguageClassifier(username: username, password: password)
+let classifierID = "e9d41cx366-nlc-1438"
 
 let currentBidLabelPreset = "CURRENT BID: $"
 
@@ -112,9 +119,9 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
   var databaseHandle: DatabaseHandle?
     
   // populate pickers with numbers
-  var numsMil = Array(stride(from: 20, through: 0, by: -1))
+  var numsMil = Array(stride(from: 50, through: 0, by: -1))
   var nums = Array(stride(from: 999, through: 0, by: -1))
-  var numsOnes = Array(stride(from: 900, through: 0, by: -100))
+  var numsOnes = Array(stride(from: 995, through: 0, by: -5))
     
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -126,12 +133,15 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     // set the firebase reference
     ref = Database.database().reference()
     
+    // set property value to 0
+    setCurrentBidValue(newBid: 0)
+    
     // retrieve current bid snapshot and listen for changes
     databaseHandle = ref?.child("Bids").observe(.childChanged, with: { (snapshot) in
         if snapshot.key == "currentBid" {
             // get current bid value
             let databaseCurrentBid = snapshot.value as! Int
-            print(databaseCurrentBid)
+            print( "CB: " + String( databaseCurrentBid ) )
             
             // set current bid to current bid title
             self.currentBid = databaseCurrentBid
@@ -152,6 +162,9 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     // set border color
     self.manualPickerContainer.layer.borderWidth = 3
     self.manualPickerContainer.layer.borderColor = currentBidStock.cgColor
+    
+    //validateTranscriptionNLC(transcriptionText: "i have herp le derp at 1 million baguettes")
+    //print(wordsToNumber(transcription: "i have herp le derp at 1 million baguettes") )
   }
     
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
@@ -212,8 +225,8 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
   }
     
   // set the new current bid value
-  func setCurrentBidValue(currentBid: Int) -> Void {
-    ref?.child("Bids").updateChildValues(["currentBid": currentBid])
+  func setCurrentBidValue(newBid: Int) -> Void {
+    ref?.child("Bids").updateChildValues(["currentBid": newBid])
   }
 
   // accept bid
@@ -231,7 +244,7 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     else
     {
         // add current bid to database
-        setCurrentBidValue(currentBid: bidNumber)
+        setCurrentBidValue(newBid: bidNumber)
     }
     hideManualEntry()
   }
@@ -261,10 +274,6 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     // Scroll to bottom of scroll view
     eventList.scrollTo(direction: .Bottom, animated: true)
     
-    for view in eventList.subviews{
-        view.removeFromSuperview()
-    }
-    
     addEventBubble(eventText: "Stream Started", eventType: .streamStarted)
   }
 
@@ -282,31 +291,58 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     addEventBubble(eventText: "Stream Stopped", eventType: .streamEnded)
   }
     
+    // clear bubble text in event list
+    func clearEventList() {
+        for view in eventList.subviews{
+            view.removeFromSuperview()
+        }
+    }
+    
     // show manual entry view
-    func showManualEntry() {
-        // prepare to preset pickers
-        let strCB = String(format: "%09d", currentBid)
-        let compOne = Int(strCB[6...8])
-        let compTho = Int(strCB[3...5])
-        let compMil = Int(strCB[0...2])
-        
-        // find index for pickers preset
-        let milIndex = numsMil.index(of: compMil!) as Int! ?? numsMil.count-1
-        let thoIndex = nums.index(of: compTho!) as Int! ?? nums.count-1
-        let oneIndex = numsOnes.index(of: compOne!) as Int! ?? numsOnes.count-1
-        
-        // set pickers to respective rows
-        pickOne.selectRow(milIndex, inComponent: 0, animated: false)
-        pickOne.selectRow(thoIndex, inComponent: 1, animated: false)
-        pickOne.selectRow(oneIndex, inComponent: 2, animated: false)
-        manualPickerContainer.isHidden = false
-        
-        // animate manual entry show
-        let showMP = CGRect(origin: CGPoint(x: 15, y: 210), size: self.manualPickerContainer.frame.size)
-        UIView.animate(withDuration: 0.2, animations: {
-            () -> Void in
-            self.manualPickerContainer.frame = showMP
-        })
+    func showManualEntry(valueToAccept: Int? = nil) {
+        DispatchQueue.main.async {
+            // prepare to preset pickers
+            var animate: Bool
+            var strCB: String
+            
+            // check if valueToAccept has been set and process accordingly
+            if valueToAccept == nil {
+                strCB = String(format: "%09d", self.currentBid)
+                animate = false
+            } else {
+                if valueToAccept! > self.currentBid
+                {
+                    strCB = String(format: "%09d", valueToAccept!)
+                    animate = true
+                } else {
+                    strCB = String(format: "%09d", self.currentBid!)
+                    animate = true
+                }
+            }
+            
+            // set array for picker populating
+            let compOne = Int(strCB[6...8])
+            let compTho = Int(strCB[3...5])
+            let compMil = Int(strCB[0...2])
+            
+            // find index for pickers preset
+            let milIndex = self.numsMil.index(of: compMil!) as Int? ?? self.numsMil.count-1
+            let thoIndex = self.nums.index(of: compTho!) as Int? ?? self.nums.count-1
+            let oneIndex = self.numsOnes.index(of: compOne!) as Int? ?? self.numsOnes.count-1
+            
+            // set pickers to respective rows
+            self.pickOne.selectRow(milIndex, inComponent: 0, animated: animate)
+            self.pickOne.selectRow(thoIndex, inComponent: 1, animated: animate)
+            self.pickOne.selectRow(oneIndex, inComponent: 2, animated: animate)
+            self.manualPickerContainer.isHidden = false
+            
+            // animate manual entry show
+            let showMP = CGRect(origin: CGPoint(x: 15, y: 210), size: self.manualPickerContainer.frame.size)
+            UIView.animate(withDuration: 0.2, animations: {
+                () -> Void in
+                self.manualPickerContainer.frame = showMP
+            })
+        }
     }
     
     func hideManualEntry() {
@@ -316,20 +352,17 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
             () -> Void in
             self.manualPickerContainer.frame = hideMP
         }, completion: { (true) -> Void in
+            // after animation completed set isHidden to true
             self.manualPickerContainer.isHidden = true
         })
     }
     
-  // show or hide manual entry
+  // show or hide manual entry button
   @IBAction func showHideManualEntry(_ sender: UIButton) {
     if manualPickerContainer.isHidden
-    {
-        showManualEntry()
-    }
+    { showManualEntry() }   // show manual entry
     else
-    {
-        hideManualEntry()
-    }
+    { hideManualEntry() }   // hide manual entry
   }
     
     // function to HIDE transcript area and text view with animation
@@ -415,7 +448,7 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
         })
     }
     
-    // enums for specified event
+    // enums for auction events
     enum auctionEvent {
         case streamStarted
         case auctionStart
@@ -428,6 +461,7 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     
     // add event or bubble to final transcription
     func addEventBubble(eventText: String, eventType: auctionEvent) {
+        // initialize a view to contain label bubble output
         let addedView = UIView()
         addedView.frame = CGRect(
             origin: CGPoint(x: 0,y : Int(eventList.frame.height) + (50 * uiViewEventArray.count) ),
@@ -435,6 +469,8 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
                 width: (self.eventList.frame.width),
                 height: 50)
         )
+        
+        // initialize a label to contain text content
         let transcriptLabel = UILabel()
         transcriptLabel.frame = CGRect(
             origin: CGPoint(x: 15,y : 0),
@@ -442,21 +478,30 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
                 width: ((self.eventList.frame.width) - 20),
                 height: 40)
         )
-        transcriptLabel.center = CGPoint(x: addedView.frame.width/2, y: addedView.frame.height/2)
-        transcriptLabel.font = UIFont(name:transcriptLabel.font.fontName, size: 18.0)
-        transcriptLabel.textAlignment = NSTextAlignment.left
+        transcriptLabel.center = CGPoint(x: addedView.frame.width/2, y: addedView.frame.height/2) // center label in initialized view
+        transcriptLabel.font = UIFont(name:transcriptLabel.font.fontName, size: 18.0)   // set default font size standard
+        transcriptLabel.textAlignment = NSTextAlignment.left    // set left align as default
         
+        // event type handlimg
         if eventType == .nothing
-        { transcriptLabel.backgroundColor = UIColor(red:1.00, green:1.00, blue:1.00, alpha:1.0) }
+        {
+            // if event triggered is "nothing"
+            transcriptLabel.backgroundColor = UIColor(red:1.00, green:1.00, blue:1.00, alpha:1.0)
+        }
         else if eventType == .bidSubmitted
         {
+            // if event triggered is "bidSubmitted"
             transcriptLabel.backgroundColor = speechOnColor
             transcriptLabel.textAlignment = NSTextAlignment.right
             transcriptLabel.font = UIFont(name:transcriptLabel.font.fontName, size: 20.0)
-        } else if eventType == .streamStarted || eventType == .streamEnded {
+        } else if eventType == .streamStarted || eventType == .streamEnded
+        {
+            // if event triggered is "streamEnded"
             transcriptLabel.backgroundColor = UIColor.gray
             transcriptLabel.font = UIFont(name:transcriptLabel.font.fontName, size: 18.0)
-        } else if eventType == .warning {
+        } else if eventType == .warning
+        {
+            // if event triggered is "warning"
             transcriptLabel.backgroundColor = UIColor.yellow
             transcriptLabel.font = UIFont(name:transcriptLabel.font.fontName, size: 18.0)
         }
@@ -484,6 +529,77 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
         // set transcription field to empty string
         textView.text = String()
     }
+
+  // convert transcription from words of numbers to numeric
+  func wordsToNumber(transcription: String) -> Int {
+    // var of words for numbers
+    var wordsOfNumber: [String: Int] = ["zero": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12, "thirteen": 13, "fourteen": 14, "fifteen": 15, "sixteen": 16, "seventeen": 17, "eighteen": 18, "nineteen": 19, "twenty": 20, "thirty": 30, "forty": 40, "fifty": 50, "sixty": 60, "seventy": 70, "eighty": 80, "ninety": 90, "hundred": 100, "thousand": 1000, "million": 1000000]
+    
+    // split transcription into words
+    let transWords = transcription.components(separatedBy: " ")
+    var recompileTranscription: [Int] = []
+    
+    // find sequence of number then word number
+    for i in 0...(transWords.count-1) {
+        let lowerWord = transWords[i].lowercased()   // lowercased word
+        if let x:Int = Int(lowerWord) {
+            if x != nil {
+                if let val = wordsOfNumber[transWords[i+1]] {
+                    recompileTranscription.append(x)
+                    recompileTranscription.append(val)
+                    break
+                }
+            }
+        }
+    }
+    
+    // readd number together
+    var numberAddition = 0
+    if recompileTranscription.count == 2 {
+        numberAddition = recompileTranscription[0] * recompileTranscription[1]
+    }
+    
+    if numberAddition > 0 {
+        return numberAddition       // number found
+    }
+    return -1                       // nope
+  }
+    
+  // validate transciption to see if is acknowledged bid
+  func validateTranscriptionNLC(transcriptionText: String) {
+    // print nlc errors
+    let failure = { (error: Error) in print(error) }
+    
+    // classify transcription
+    naturalLanguageClassifier.classify(classifierID: classifierID, text: transcriptionText, failure: failure) {
+        classification in
+        print(classification)
+        // set and get most confident class
+        let classArray = classification.classes!
+        let firstConfidence = classArray.first!.confidence! as Double
+        
+        // if most confident class is greater than 66%
+        if firstConfidence > 0.66 {
+            // if class is an acknowledged bid
+            if classification.topClass! == "ackBid" {
+                
+                // if it is an acknowldeged bid
+                let regex = try! NSRegularExpression(pattern: "(\\d+){1}", options: [])
+                let matches = regex.matches(in: transcriptionText, options: [], range: NSRange(location: 0, length: transcriptionText.count))
+                
+                // get bid value from match
+                if let match = matches.first {          // get first regex match
+                    let range = match.rangeAt(1)
+                    if let swiftRange = Range(range, in: transcriptionText) {
+                        let bid = transcriptionText[swiftRange]                // get bid from refex match string range
+                        self.showManualEntry(valueToAccept: Int(bid)!)         // show manual entry with attempted price
+                    }
+                }
+                
+            }
+        }
+    }
+  }
     
   func processSampleData(_ data: Data) -> Void {
     audioData.append(data)
@@ -510,6 +626,8 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
                 for result in response.resultsArray! {
                     if let result = result as? StreamingRecognitionResult {
                         var stable = false
+                        
+                        //print(result)
                         
                         // if there has not been a recognition result yet
                         if self?.tempResult == nil {
@@ -538,11 +656,18 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
                             
                             // print the running transcript
                             if let resultFirstAlt = result.alternativesArray.firstObject as? SpeechRecognitionAlternative {
+                                
+                                //if let x = self?.wordsToNumber(transcription: resultFirstAlt.transcript) {}
+                                
+                                // check transcription for classification labels
+                                self?.validateTranscriptionNLC(transcriptionText: resultFirstAlt.transcript)
+                                
+                                // set text view to transcript
                                 strongSelf.textView.text = resultFirstAlt.transcript
                                 
                                 // add event to event list
                                 self?.addEventBubble(eventText: resultFirstAlt.transcript, eventType: .nothing)
-                                print(resultFirstAlt.transcript)
+                                //print(resultFirstAlt.transcript)
                             }
                             
                             // reset temp result

@@ -39,7 +39,7 @@ class SpeechRecognitionService {
       call = client.rpcToStreamingRecognize(withRequestsWriter: writer,
                                             eventHandler:
         { (done, response, error) in
-                                              completion(response, error as? NSError)
+            completion(response, error as NSError?)
       })
       // authenticate using an API key obtained from the Google Cloud Console
       call.requestHeaders.setObject(NSString(string:API_KEY),

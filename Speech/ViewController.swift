@@ -620,7 +620,7 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
             if let error = error {
                 strongSelf.textView.text = error.localizedDescription
             } else if let response = response {
-                var finished = false    // flag to identify end of speech recognition result
+                //var finished = false    // flag to identify end of speech recognition result
                 
                 // if result or google api return is a streaming recognition result
                 for result in response.resultsArray! {
@@ -652,7 +652,7 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
                         
                         // check if final result
                         if result.isFinal {
-                            finished = true
+                            //finished = true
                             
                             // print the running transcript
                             if let resultFirstAlt = result.alternativesArray.firstObject as? SpeechRecognitionAlternative {

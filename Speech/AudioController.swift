@@ -44,7 +44,7 @@ class AudioController {
     }
 
     var sampleRate = session.sampleRate
-    print("hardware sample rate = \(sampleRate), using specified rate = \(specifiedSampleRate)")
+    // print("hardware sample rate = \(sampleRate), using specified rate = \(specifiedSampleRate)")
     sampleRate = Double(specifiedSampleRate)
 
     // Describe the RemoteIO unit

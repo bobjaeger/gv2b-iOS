@@ -123,6 +123,10 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
   var nums = Array(stride(from: 999, through: 0, by: -1))
   var numsOnes = Array(stride(from: 995, through: 0, by: -5))
     
+  // nlc phrase offsets
+  var lowerBound: Int = 0
+  var upperBound: Int = 0
+    
   override func viewDidLoad() {
     super.viewDidLoad()
     AudioController.sharedInstance.delegate = self
@@ -163,8 +167,9 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     self.manualPickerContainer.layer.borderWidth = 3
     self.manualPickerContainer.layer.borderColor = currentBidStock.cgColor
     
-    //validateTranscriptionNLC(transcriptionText: "i have herp le derp at 1 million baguettes")
-    //print(wordsToNumber(transcription: "i have herp le derp at 1 million baguettes") )
+    // get offset values from NLC training file
+    lowerBound = 3
+    upperBound = 5
   }
     
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
@@ -254,6 +259,9 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     hideManualEntry()
   }
     
+  // begin auction stream
+  var streamRestartTimer = Timer()
+  var timerInterval: TimeInterval = 55.0
   @IBAction func recordAudio(_ sender: NSObject) {
     let audioSession = AVAudioSession.sharedInstance()
     do {
@@ -275,9 +283,20 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     eventList.scrollTo(direction: .Bottom, animated: true)
     
     addEventBubble(eventText: "Stream Started", eventType: .streamStarted)
+    
+    // start 55 second stream restart timer
+    restartTimer()
+  }
+    
+  // func restart timer count
+  func restartTimer() {
+    streamRestartTimer = Timer.scheduledTimer(timeInterval: timerInterval, target: self, selector: #selector(restartStream), userInfo: nil, repeats: false)
   }
 
   @IBAction func stopAudio(_ sender: NSObject) {
+    // stop timer for stream restart
+    streamRestartTimer = Timer()
+    
     _ = AudioController.sharedInstance.stop()
     SpeechRecognitionService.sharedInstance.stopStreaming()
     
@@ -492,7 +511,7 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
         {
             // if event triggered is "bidSubmitted"
             transcriptLabel.backgroundColor = speechOnColor
-            transcriptLabel.textAlignment = NSTextAlignment.right
+            transcriptLabel.textAlignment = NSTextAlignment.center
             transcriptLabel.font = UIFont(name:transcriptLabel.font.fontName, size: 20.0)
         } else if eventType == .streamStarted || eventType == .streamEnded
         {
@@ -574,7 +593,7 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     // classify transcription
     naturalLanguageClassifier.classify(classifierID: classifierID, text: transcriptionText, failure: failure) {
         classification in
-        print(classification)
+        
         // set and get most confident class
         let classArray = classification.classes!
         let firstConfidence = classArray.first!.confidence! as Double
@@ -624,7 +643,8 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
   }
     
   // get subset of phrase from landmark definition
-  func getPhraseFromString( transcript: String, landmark: Int, lowerOffset: Int, upperOffset: Int) -> Bool {
+  var priorPhrase = String()
+  func getPhraseFromString( transcript: String, landmark: Int, lowerOffset: Int, upperOffset: Int) -> Void {
     let transcriptWords = transcript.split(separator: " ")
     
     // see if phrase contains landmark
@@ -637,12 +657,12 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     }
     
     // landmark not found in transcript
-    if foundLandmarkIndex == -1 { return false }
+    if foundLandmarkIndex == -1 { return }
     
     // phrase bound collision assessment
     if ( (transcriptWords.count - 1) - (foundLandmarkIndex)) > upperOffset {
         tempValueAssessment = -1
-        return false
+        return
     }
     
     // offset realignment
@@ -653,20 +673,48 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     }
     //      lower
     var lowerPass = lowerOffset
-    if ( (transcriptWords.count - 1) - upperPass - foundLandmarkIndex) > lowerOffset {
+    if ( (transcriptWords.count - 1) - upperPass - foundLandmarkIndex) < lowerOffset {
         lowerPass = (transcriptWords.count - 1) - upperPass - foundLandmarkIndex
     }
     
     // assemble phrase for NLC
-    var phrase = ""
+    var phrase = String()
     for index in (foundLandmarkIndex - lowerPass)...(foundLandmarkIndex + upperPass) {
         phrase += "\(transcriptWords[index]) "
     }
     
+    // quit if phrase is equal to prior phrase assessment
+    if phrase == priorPhrase {
+        return
+    } else {
+        // store new encountered phrase
+        priorPhrase = phrase
+    }
+    
+    // send for validation and NLC assessment
+    self.validateTranscriptionNLC(transcriptionText: phrase)
+    
+    // restart stream
+    restartStream()
+    
     print(phrase)
     
-    return true
+  }
     
+  // function to restart stream
+  func restartStream() -> Void {
+    
+    //      Stop
+    _ = AudioController.sharedInstance.stop()
+    SpeechRecognitionService.sharedInstance.stopStreaming()
+    
+    //      Start
+    _ = AudioController.sharedInstance.prepare(specifiedSampleRate: SAMPLE_RATE)
+    SpeechRecognitionService.sharedInstance.sampleRate = SAMPLE_RATE
+    _ = AudioController.sharedInstance.start()
+    
+    // restart timer for stream reset
+    restartTimer()
   }
     
   var tempValueAssessment: Int! = -1    // set a variable to store for temporary assessment
@@ -719,8 +767,8 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
                                     self?.getPhraseFromString(
                                         transcript: resultFirstAlt.transcript,
                                         landmark: (self?.tempValueAssessment)!,
-                                        lowerOffset: 1,
-                                        upperOffset: 3
+                                        lowerOffset: (self?.lowerBound)!,
+                                        upperOffset: (self?.upperBound)!
                                     )
                                 }
                             }
@@ -734,6 +782,9 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
                             // check if final result
                             if result.isFinal {
                                 //finished = true
+                                
+                                // Restart Stream Recognition Service
+                                self?.restartStream()
                                 
                                 // print the running transcript
                                 

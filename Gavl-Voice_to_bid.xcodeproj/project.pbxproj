@@ -14,6 +14,7 @@
 		3A15E5B920A0B4C80037FF2F /* NaturalLanguageClassifierV1.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3A15E5AE20A0A18E0037FF2F /* NaturalLanguageClassifierV1.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3A15E5BA20A0B4C80037FF2F /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A15E5AD20A0A18E0037FF2F /* Starscream.framework */; };
 		3A15E5BB20A0B4C80037FF2F /* Starscream.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3A15E5AD20A0A18E0037FF2F /* Starscream.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3A2F4CEA20AD6B6B0052EEBC /* gavl_acknowledgedbid_train.csv in Resources */ = {isa = PBXBuildFile; fileRef = 3A2F4CE920AD6B6B0052EEBC /* gavl_acknowledgedbid_train.csv */; };
 		3ACA877E20A2D4C100C4D0D1 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3ACA877D20A2D4C000C4D0D1 /* GoogleService-Info.plist */; };
 		D31E0EB81D778A56006A50AB /* SpeechRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31E0EB71D778A56006A50AB /* SpeechRecognitionService.swift */; };
 		D31E0EBA1D77AA2F006A50AB /* AudioController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31E0EB91D77AA2F006A50AB /* AudioController.swift */; };
@@ -42,6 +43,7 @@
 /* Begin PBXFileReference section */
 		3A15E5AD20A0A18E0037FF2F /* Starscream.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Starscream.framework; path = Carthage/Build/iOS/Starscream.framework; sourceTree = "<group>"; };
 		3A15E5AE20A0A18E0037FF2F /* NaturalLanguageClassifierV1.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NaturalLanguageClassifierV1.framework; path = Carthage/Build/iOS/NaturalLanguageClassifierV1.framework; sourceTree = "<group>"; };
+		3A2F4CE920AD6B6B0052EEBC /* gavl_acknowledgedbid_train.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gavl_acknowledgedbid_train.csv; sourceTree = SOURCE_ROOT; };
 		3ACA877D20A2D4C000C4D0D1 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		54C3D1E96C8C43AB14662311 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		5E83ACE29B0D0DF0085BA8F2 /* Pods-Speech.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Speech.release.xcconfig"; path = "Pods/Target Support Files/Pods-Speech/Pods-Speech.release.xcconfig"; sourceTree = "<group>"; };
@@ -88,9 +90,19 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		3A2F4CE820AD6B450052EEBC /* GAVL resources */ = {
+			isa = PBXGroup;
+			children = (
+				3A2F4CE920AD6B6B0052EEBC /* gavl_acknowledgedbid_train.csv */,
+			);
+			name = "GAVL resources";
+			path = Speech;
+			sourceTree = "<group>";
+		};
 		D34C17C01C948F5700D69BCA = {
 			isa = PBXGroup;
 			children = (
+				3A2F4CE820AD6B450052EEBC /* GAVL resources */,
 				D34C17CB1C948F5700D69BCA /* Speech */,
 				D34C17CA1C948F5700D69BCA /* Products */,
 				F657FA334EB8D9ABF1ACF569 /* Pods */,
@@ -205,6 +217,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D392D9861C94937D002F5132 /* Main.storyboard in Resources */,
+				3A2F4CEA20AD6B6B0052EEBC /* gavl_acknowledgedbid_train.csv in Resources */,
 				3ACA877E20A2D4C100C4D0D1 /* GoogleService-Info.plist in Resources */,
 				D34C17DC1C948F5800D69BCA /* LaunchScreen.storyboard in Resources */,
 				D34C17D91C948F5800D69BCA /* Assets.xcassets in Resources */,

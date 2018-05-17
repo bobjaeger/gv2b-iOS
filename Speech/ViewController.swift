@@ -23,7 +23,7 @@ import FirebaseDatabase
 let username = ""
 let password = ""
 let naturalLanguageClassifier = NaturalLanguageClassifier(username: username, password: password)
-let classifierID = "e9d41cx366-nlc-1438"
+let classifierID = "6b5169x394-nlc-75"
 
 let currentBidLabelPreset = "CURRENT BID: $"
 

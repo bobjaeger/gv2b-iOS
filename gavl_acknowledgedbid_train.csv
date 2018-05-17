@@ -1,8 +1,13 @@
 at 1000000,ackBid
 1000000 here,ackBid
+1000000 here now,ackBid
 1000000 the bid here,ackBid
 1000000 the bid now,ackBid
 1000000 is the bid here now,ackBid
 can we say 1000000,sugBid
 1000000 can we say,sugBid
+anyone for 1000000,sugBid
+could we do 1000000,sugBid
+could you do 1000000,sugBid
+what about 1000000,sugBid
 selling selling and sold,eoa

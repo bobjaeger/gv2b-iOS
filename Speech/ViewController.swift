@@ -779,14 +779,11 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
                                 strongSelf.textView.text = resultFirstAlt.transcript  // add transcript to textView
                             }
                             
+                            /*
                             // check if final result
                             if result.isFinal {
-                                //finished = true
-                                
                                 // Restart Stream Recognition Service
                                 self?.restartStream()
-                                
-                                // print the running transcript
                                 
                                 //if let x = self?.wordsToNumber(transcription: resultFirstAlt.transcript) {}
                                 
@@ -803,6 +800,8 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
                                 // reset temp result
                                 self?.tempResult = nil
                             }
+                            */
+                            
                         }
                     }
                 }

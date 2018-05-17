@@ -567,6 +567,7 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     
   // validate transciption to see if is acknowledged bid
   func validateTranscriptionNLC(transcriptionText: String) {
+    
     // print nlc errors
     let failure = { (error: Error) in print(error) }
     
@@ -600,7 +601,75 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
         }
     }
   }
+
+  // func to check if response is a number and await appropriate number of trailing words
+  func isNumberResponse( transcript: String ) -> Void {
     
+    if transcript.split(separator: " ").count == 1 {
+        // prepare regex for pattern seeking
+        let regex = try! NSRegularExpression(pattern: "\\d+", options: [])
+        let matches = regex.matches(in: transcript, options: [], range: NSRange(location: 0, length: transcript.count))
+        //let matches = regex.matches(in: transcript, options: [], range: NSRange(location: 0, length: transcript.count))
+        
+        // get number present in transcription through regex
+        if let match = matches.first {          // get first regex match
+            let range = match.rangeAt(0)        // 0 since whitespace has been trimmed from split func
+            if let swiftRange = Range(range, in: transcript) {
+                let bid = transcript[swiftRange]
+                let bidVal: Int! = Int(bid)
+                self.tempValueAssessment = bidVal
+            }
+        }
+    }
+  }
+    
+  // get subset of phrase from landmark definition
+  func getPhraseFromString( transcript: String, landmark: Int, lowerOffset: Int, upperOffset: Int) -> Bool {
+    let transcriptWords = transcript.split(separator: " ")
+    
+    // see if phrase contains landmark
+    var foundLandmarkIndex = -1
+    for index in (0...(transcriptWords.count-1)).reversed() {
+        if transcriptWords[index] == String(landmark) {
+            foundLandmarkIndex = index
+            break
+        }
+    }
+    
+    // landmark not found in transcript
+    if foundLandmarkIndex == -1 { return false }
+    
+    // phrase bound collision assessment
+    if ( (transcriptWords.count - 1) - (foundLandmarkIndex)) > upperOffset {
+        tempValueAssessment = -1
+        return false
+    }
+    
+    // offset realignment
+    //      upper
+    var upperPass = upperOffset
+    if ( (transcriptWords.count - 1) - (foundLandmarkIndex) ) < upperPass {
+        upperPass = (transcriptWords.count - 1) - (foundLandmarkIndex)
+    }
+    //      lower
+    var lowerPass = lowerOffset
+    if ( (transcriptWords.count - 1) - upperPass - foundLandmarkIndex) > lowerOffset {
+        lowerPass = (transcriptWords.count - 1) - upperPass - foundLandmarkIndex
+    }
+    
+    // assemble phrase for NLC
+    var phrase = ""
+    for index in (foundLandmarkIndex - lowerPass)...(foundLandmarkIndex + upperPass) {
+        phrase += "\(transcriptWords[index]) "
+    }
+    
+    print(phrase)
+    
+    return true
+    
+  }
+    
+  var tempValueAssessment: Int! = -1    // set a variable to store for temporary assessment
   func processSampleData(_ data: Data) -> Void {
     audioData.append(data)
 
@@ -625,42 +694,53 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
                 // if result or google api return is a streaming recognition result
                 for result in response.resultsArray! {
                     if let result = result as? StreamingRecognitionResult {
-                        var stable = false
                         
-                        //print(result)
+                        var stable = false          // variable to flafg if transcription is stable
                         
-                        // if there has not been a recognition result yet
-                        if self?.tempResult == nil {
-                            // set recognition to temporary variable
-                            self?.tempResult = result
-                            stable = true
-                            strongSelf.textView.text = String()
-                        } else if (self?.tempResult.stability)! <= result.stability {
-                            // otherwise if stability of result is equal or better then temporary variable
-                            // replace temp variable with more stable option
-                            self?.tempResult = result
-                            stable = true
-                        }
-                        
-                        // if recognition result is a stable result
-                        if stable == true {
-                            // print the running transcript
-                            if let resultFirstAlt = result.alternativesArray.firstObject as? SpeechRecognitionAlternative {
+                        if let resultFirstAlt = result.alternativesArray.firstObject as? SpeechRecognitionAlternative {
+                            
+                            // if reponse is a sole numeric value, store in temporary variable
+                            self?.isNumberResponse( transcript: resultFirstAlt.transcript )
+                            
+                            // if there has not been a recognition result yet
+                            if self?.tempResult == nil {
+                                // set recognition to temporary variable
+                                self?.tempResult = result
+                                stable = true
+                                strongSelf.textView.text = String()
+                            } else if (self?.tempResult.stability)! <= result.stability {
+                                // otherwise if stability of result is equal or better then temporary variable
+                                // replace temp variable with more stable option
+                                self?.tempResult = result
+                                stable = true
+                                
+                                // process stable response
+                                if self?.tempValueAssessment != -1 {
+                                    self?.getPhraseFromString(
+                                        transcript: resultFirstAlt.transcript,
+                                        landmark: (self?.tempValueAssessment)!,
+                                        lowerOffset: 1,
+                                        upperOffset: 3
+                                    )
+                                }
+                            }
+                            
+                            // if recognition result is a stable result
+                            if stable == true {
+                                // print the running transcript
                                 strongSelf.textView.text = resultFirstAlt.transcript  // add transcript to textView
                             }
-                        }
-                        
-                        // check if final result
-                        if result.isFinal {
-                            //finished = true
                             
-                            // print the running transcript
-                            if let resultFirstAlt = result.alternativesArray.firstObject as? SpeechRecognitionAlternative {
+                            // check if final result
+                            if result.isFinal {
+                                //finished = true
+                                
+                                // print the running transcript
                                 
                                 //if let x = self?.wordsToNumber(transcription: resultFirstAlt.transcript) {}
                                 
                                 // check transcription for classification labels
-                                self?.validateTranscriptionNLC(transcriptionText: resultFirstAlt.transcript)
+                                //self?.validateTranscriptionNLC(transcriptionText: resultFirstAlt.transcript)
                                 
                                 // set text view to transcript
                                 strongSelf.textView.text = resultFirstAlt.transcript
@@ -668,10 +748,10 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
                                 // add event to event list
                                 self?.addEventBubble(eventText: resultFirstAlt.transcript, eventType: .nothing)
                                 //print(resultFirstAlt.transcript)
+                                
+                                // reset temp result
+                                self?.tempResult = nil
                             }
-                            
-                            // reset temp result
-                            self?.tempResult = nil
                         }
                     }
                 }

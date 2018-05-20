@@ -15,10 +15,10 @@
 		3A15E5BA20A0B4C80037FF2F /* Starscream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A15E5AD20A0A18E0037FF2F /* Starscream.framework */; };
 		3A15E5BB20A0B4C80037FF2F /* Starscream.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3A15E5AD20A0A18E0037FF2F /* Starscream.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3A2F4CEA20AD6B6B0052EEBC /* gavl_acknowledgedbid_train.csv in Resources */ = {isa = PBXBuildFile; fileRef = 3A2F4CE920AD6B6B0052EEBC /* gavl_acknowledgedbid_train.csv */; };
+		3A2F4CEB20AD92570052EEBC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D34C17D81C948F5800D69BCA /* Assets.xcassets */; };
 		3ACA877E20A2D4C100C4D0D1 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3ACA877D20A2D4C000C4D0D1 /* GoogleService-Info.plist */; };
 		D31E0EB81D778A56006A50AB /* SpeechRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31E0EB71D778A56006A50AB /* SpeechRecognitionService.swift */; };
 		D31E0EBA1D77AA2F006A50AB /* AudioController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31E0EB91D77AA2F006A50AB /* AudioController.swift */; };
-		D34C17D91C948F5800D69BCA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D34C17D81C948F5800D69BCA /* Assets.xcassets */; };
 		D34C17DC1C948F5800D69BCA /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D34C17DA1C948F5800D69BCA /* LaunchScreen.storyboard */; };
 		D392D9861C94937D002F5132 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D392D9851C94937D002F5132 /* Main.storyboard */; };
 		D3E34EA11D77541D00EF755D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3E34EA01D77541D00EF755D /* AppDelegate.swift */; };
@@ -216,11 +216,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3A2F4CEB20AD92570052EEBC /* Assets.xcassets in Resources */,
 				D392D9861C94937D002F5132 /* Main.storyboard in Resources */,
 				3A2F4CEA20AD6B6B0052EEBC /* gavl_acknowledgedbid_train.csv in Resources */,
 				3ACA877E20A2D4C100C4D0D1 /* GoogleService-Info.plist in Resources */,
 				D34C17DC1C948F5800D69BCA /* LaunchScreen.storyboard in Resources */,
-				D34C17D91C948F5800D69BCA /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

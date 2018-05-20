@@ -562,12 +562,10 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     for i in 0...(transWords.count-1) {
         let lowerWord = transWords[i].lowercased()   // lowercased word
         if let x:Int = Int(lowerWord) {
-            if x != nil {
-                if let val = wordsOfNumber[transWords[i+1]] {
-                    recompileTranscription.append(x)
-                    recompileTranscription.append(val)
-                    break
-                }
+            if let val = wordsOfNumber[transWords[i+1]] {
+                recompileTranscription.append(x)
+                recompileTranscription.append(val)
+                break
             }
         }
     }
@@ -584,6 +582,71 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     return -1                       // nope
   }
     
+    // convert transcription from words of numbers to numeric
+    func wordsToNumberPhrase(transcription: String) -> String {
+        // var of words for numbers
+        var wordsOfNumber: [String: Int] = ["zero": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12, "thirteen": 13, "fourteen": 14, "fifteen": 15, "sixteen": 16, "seventeen": 17, "eighteen": 18, "nineteen": 19, "twenty": 20, "thirty": 30, "forty": 40, "fifty": 50, "sixty": 60, "seventy": 70, "eighty": 80, "ninety": 90, "hundred": 100, "thousand": 1000, "million": 1000000]
+        
+        // split transcription into words
+        let transWords = transcription.components(separatedBy: " ")
+        var recompileTranscription: [String] = []
+        
+        // if more than 1 word
+        if transWords.count > 1 {
+            // find sequence of number then word number
+            var nextIndexCaptureTheFlag : Int = -1
+            for i in 0...(transWords.count-1) {
+                
+                // end for loop
+                if (i+1) > transWords.count-1 { break }
+                
+                // continue till flagged index is met
+                if nextIndexCaptureTheFlag != -1 {
+                    if i == nextIndexCaptureTheFlag {
+                        nextIndexCaptureTheFlag = -1
+                    } else {
+                        continue
+                    }
+                }
+                
+                let lowerWord = transWords[i].lowercased()   // lowercased word
+                if let x:Int = Int(lowerWord) {
+                    if let val = wordsOfNumber[transWords[i+1]] {
+                        // recontruct to full numeric form
+                        let tempNum = x * val
+                        
+                        // append to recompileTranscription
+                        recompileTranscription.append( String(tempNum) )
+                        
+                        // continue iteration to i+2
+                        nextIndexCaptureTheFlag = (i+2)
+                        
+                        continue
+                    }
+                }
+                recompileTranscription.append( transWords[i] )
+            }
+        } else {
+            // if word count is not greater than 1
+            return transcription
+        }
+        
+//        // readd number together
+//        var numberAddition = 0
+//        if recompileTranscription.count == 2 {
+//            numberAddition = recompileTranscription[0] * recompileTranscription[1]
+//        }
+        
+//        if numberAddition > 0 {
+//            return numberAddition       // number found
+//        }
+        
+        // recompile phrase
+        let phrase = recompileTranscription.joined(separator: " ")
+        
+        return phrase
+    }
+    
   // validate transciption to see if is acknowledged bid
   func validateTranscriptionNLC(transcriptionText: String) {
     
@@ -593,6 +656,9 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     // classify transcription
     naturalLanguageClassifier.classify(classifierID: classifierID, text: transcriptionText, failure: failure) {
         classification in
+        
+        print(classification)
+        print(transcriptionText)
         
         // set and get most confident class
         let classArray = classification.classes!
@@ -644,7 +710,11 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     
   // get subset of phrase from landmark definition
   var priorPhrase = String()
-  func getPhraseFromString( transcript: String, landmark: Int, lowerOffset: Int, upperOffset: Int) -> Void {
+    func getPhraseFromString( transcript: String, landmark: Int, lowerOffset: Int, upperOffset: Int, finalTrans: Bool) -> Void {
+    
+    // return if poor function call for nothing transcript
+    if (transcript == "") || (transcript == " "){ return }
+    
     let transcriptWords = transcript.split(separator: " ")
     
     // see if phrase contains landmark
@@ -660,22 +730,38 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     if foundLandmarkIndex == -1 { return }
     
     // phrase bound collision assessment
-    if ( (transcriptWords.count - 1) - (foundLandmarkIndex)) > upperOffset {
+    /*if ( (transcriptWords.count - 1) - (foundLandmarkIndex)) > upperOffset {
         tempValueAssessment = -1
         return
-    }
+    }*/
     
     // offset realignment
     //      upper
     var upperPass = upperOffset
-    if ( (transcriptWords.count - 1) - (foundLandmarkIndex) ) < upperPass {
-        upperPass = (transcriptWords.count - 1) - (foundLandmarkIndex)
-    }
+    if ( (transcriptWords.count - 1) - foundLandmarkIndex ) < upperOffset {   // upper not satisfied
+        if finalTrans == true {
+            upperPass = (transcriptWords.count - 1) - foundLandmarkIndex
+        } else {
+            return
+        }
+    } /* else if ( (transcriptWords.count - 1) - foundLandmarkIndex ) > upperOffset {  // upper over satisfied
+        if finalTrans == false {
+            tempValueAssessment = -1
+            return
+        }
+    }*/
+    tempValueAssessment = -1    // clear the tempvalue
+        
     //      lower
     var lowerPass = lowerOffset
-    if ( (transcriptWords.count - 1) - upperPass - foundLandmarkIndex) < lowerOffset {
-        lowerPass = (transcriptWords.count - 1) - upperPass - foundLandmarkIndex
+    if foundLandmarkIndex == 0 {
+        lowerPass = 0
+    } else {
+        if ( lowerPass >= foundLandmarkIndex ) {
+            lowerPass = foundLandmarkIndex - 1
+        }
     }
+
     
     // assemble phrase for NLC
     var phrase = String()
@@ -696,8 +782,6 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     
     // restart stream
     restartStream()
-    
-    print(phrase)
     
   }
     
@@ -747,8 +831,11 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
                         
                         if let resultFirstAlt = result.alternativesArray.firstObject as? SpeechRecognitionAlternative {
                             
+                            // pre-process transcription phrase
+                            let processedTranscript = self?.wordsToNumberPhrase(transcription: resultFirstAlt.transcript)
+                            
                             // if reponse is a sole numeric value, store in temporary variable
-                            self?.isNumberResponse( transcript: resultFirstAlt.transcript )
+                            self?.isNumberResponse( transcript: processedTranscript! )
                             
                             // if there has not been a recognition result yet
                             if self?.tempResult == nil {
@@ -765,10 +852,11 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
                                 // process stable response
                                 if self?.tempValueAssessment != -1 {
                                     self?.getPhraseFromString(
-                                        transcript: resultFirstAlt.transcript,
+                                        transcript: processedTranscript!,
                                         landmark: (self?.tempValueAssessment)!,
                                         lowerOffset: (self?.lowerBound)!,
-                                        upperOffset: (self?.upperBound)!
+                                        upperOffset: (self?.upperBound)!,
+                                        finalTrans: false
                                     )
                                 }
                             }
@@ -776,31 +864,33 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
                             // if recognition result is a stable result
                             if stable == true {
                                 // print the running transcript
-                                strongSelf.textView.text = resultFirstAlt.transcript  // add transcript to textView
+                                strongSelf.textView.text = processedTranscript!  // add transcript to textView
                             }
                             
-                            /*
                             // check if final result
                             if result.isFinal {
+                                
                                 // Restart Stream Recognition Service
                                 self?.restartStream()
                                 
-                                //if let x = self?.wordsToNumber(transcription: resultFirstAlt.transcript) {}
-                                
-                                // check transcription for classification labels
-                                //self?.validateTranscriptionNLC(transcriptionText: resultFirstAlt.transcript)
+                                // process final response
+                                if self?.tempValueAssessment != -1 {
+                                    self?.getPhraseFromString(
+                                        transcript: processedTranscript!,
+                                        landmark: (self?.tempValueAssessment)!,
+                                        lowerOffset: (self?.lowerBound)!,
+                                        upperOffset: (self?.upperBound)!,
+                                        finalTrans: true
+                                    )
+                                }
                                 
                                 // set text view to transcript
-                                strongSelf.textView.text = resultFirstAlt.transcript
-                                
-                                // add event to event list
-                                self?.addEventBubble(eventText: resultFirstAlt.transcript, eventType: .nothing)
-                                //print(resultFirstAlt.transcript)
+                                strongSelf.textView.text = processedTranscript!  // add transcript to textView
                                 
                                 // reset temp result
                                 self?.tempResult = nil
+                                
                             }
-                            */
                             
                         }
                     }

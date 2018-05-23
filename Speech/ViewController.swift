@@ -297,6 +297,9 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     // stop timer for stream restart
     streamRestartTimer = Timer()
     
+    // clear audio buffer
+    self.audioData = NSMutableData()
+    
     _ = AudioController.sharedInstance.stop()
     SpeechRecognitionService.sharedInstance.stopStreaming()
     
@@ -710,7 +713,7 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     
   // get subset of phrase from landmark definition
   var priorPhrase = String()
-    func getPhraseFromString( transcript: String, landmark: Int, lowerOffset: Int, upperOffset: Int, finalTrans: Bool) -> Void {
+  func getPhraseFromString( transcript: String, landmark: Int, lowerOffset: Int, upperOffset: Int, finalTrans: Bool) -> Void {
     
     // return if poor function call for nothing transcript
     if (transcript == "") || (transcript == " "){ return }
@@ -787,6 +790,9 @@ class ViewController : UIViewController, AudioControllerDelegate, UIPickerViewDe
     
   // function to restart stream
   func restartStream() -> Void {
+    
+    // clear audio buffer
+    self.audioData = NSMutableData()
     
     //      Stop
     _ = AudioController.sharedInstance.stop()
